@@ -54,6 +54,11 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
         standardizedTimestamp = '{}-{}-{}T00:00:00.000000+01:00'.format(originalTimestamp[:4],
                                                                         originalTimestamp[4:6],
                                                                         originalTimestamp[6:])
+    elif timestampFormat == 'DD.MM.YYYY':
+        originalTimestamp = originalTimestamp.split('.')
+        standardizedTimestamp = '{}-{}-{}T00:00:00.000000+01:00'.format(originalTimestamp[2],
+                                                                        originalTimestamp[1],
+                                                                        originalTimestamp[0])
 
     return standardizedTimestamp
 
@@ -80,7 +85,7 @@ if __name__ == '__main__':
                         default='urn:ogc:def:parameter:x-istsos:1.0:time:iso8601',
                         help='Name of the column with timestamps')
 
-    timestampFormats = ['YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM', 'YYYYMMDD']
+    timestampFormats = ['YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM', 'YYYYMMDD', 'DD.MM.YYYY']
     parser.add_argument('-timestamp_format',
                         type=str,
                         default='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM',
