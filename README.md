@@ -1,2 +1,2 @@
 # istSOS-support
-Tools for importing data from sensor directly on the istSOS server. 
+Tools for importing data from a sensor directly on the istSOS server. 
