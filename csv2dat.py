@@ -16,9 +16,7 @@ def csv2dat(options):
         else:
             outLine = line.split(',')
 
-        # TODO: Not so format-specific function for timestamp conversion
-        outLine[0] = '{}-{}-{}'.format(outLine[0][:4], outLine[0][4:6], outLine[0][6:])
-        outLine[0] += 'T00:00:00.000000+01:00'
+        outLine[0] = get_standardized_timestamp(outLine[0], options['timestamp_format'])
         outLine = ','.join(outLine)
         o.write(outLine)
 
@@ -47,6 +45,19 @@ def get_header(headerLine, timestampColumn, observationColumns):
     return header, indexes
 
 
+def get_standardized_timestamp(originalTimestamp, timestampFormat):
+
+    # TODO: More formats
+    if timestampFormat == 'YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM':
+        standardizedTimestamp = timestampFormat
+    elif timestampFormat == 'YYYYMMDD':
+        standardizedTimestamp = '{}-{}-{}T00:00:00.000000+01:00'.format(originalTimestamp[:4],
+                                                                        originalTimestamp[4:6],
+                                                                        originalTimestamp[6:])
+
+    return standardizedTimestamp
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Import data from a csv file.')
@@ -68,6 +79,13 @@ if __name__ == '__main__':
                         dest='timestamp_column',
                         default='urn:ogc:def:parameter:x-istsos:1.0:time:iso8601',
                         help='Name of the column with timestamps')
+
+    timestampFormats = ['YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM', 'YYYYMMDD']
+    parser.add_argument('-timestamp_format',
+                        type=str,
+                        default='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM',
+                        dest='timestamp_format',
+                        choices=timestampFormats)
 
     args = parser.parse_args()
 
