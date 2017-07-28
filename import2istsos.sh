@@ -76,8 +76,12 @@ done
 
 workspace=${csv_path%/*}
 
+printf "creating .dat from your .csv"
 python csv2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
  -observation_columns=$observation_columns -timestamp_format=$timestamp_format
+printf "\ndone"
+
+printf "\nuploading your .dat file on the server"
 cd /usr/share/istsos
 python scripts/csv2istsos.py -m 1000 -p $procedure -o $offering -u $url\
  -s $service -w $workspace
