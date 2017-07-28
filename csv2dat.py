@@ -1,8 +1,35 @@
+#!/usr/bin/env python
+"""
+/***************************************************************************
+ csv2dat
+
+ Extract user's desired data from a .csv file and save them in istSOS
+ acceptable format in .dat file
+                              -------------------
+        begin                : 2017-07-24
+        author               : Ondrej Pesek
+        email                : pesej.ondrek@gmail.com
+        copyright            : (C) Norwegian Institute for Nature Research
+ ***************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 3 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
 import argparse
 
 
 def csv2dat(options):
-
+    """
+    extract user's desired data from .csv file and save them in istSOS
+    acceptable format in .dat file
+    :param options: parameters given with running this script
+    """
     i = open(options['path'], 'r')
     o = open('{}.dat'.format(options['path'][:-4]), 'w')
 
@@ -12,13 +39,22 @@ def csv2dat(options):
     o.write(header)
 
     for line in i.readlines():
-        o.write(get_observations(line, options['timestamp_format'], columnsIndexes))
+        o.write(get_observations(line, options['timestamp_format'],
+                                 columnsIndexes))
 
     i.close()
     o.close()
 
 
 def get_header(headerLine, timestampColumn, observationColumns):
+    """
+    creates istSOS acceptable header for .dat file
+    :param headerLine: first line of .csv file
+    :param timestampColumn: name of column with timestamps
+    :param observationColumns: names of columns with observation data
+    :return header: istSOS acceptable header with user's desired columns
+    :return indexes: dictionary in format {observation name: column index}
+    """
     if ';' in headerLine:
         headerLine = headerLine.split(';')
     else:
@@ -29,7 +65,8 @@ def get_header(headerLine, timestampColumn, observationColumns):
     index = 0
     for column in headerLine:
         if column.strip() == timestampColumn:
-            indexes.update({'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601': index})
+            indexes.update(
+                {'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601': index})
             header += 'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601,'
         elif column.strip() in observationColumns.split(','):
             indexes.update({column.strip(): index})
@@ -38,14 +75,20 @@ def get_header(headerLine, timestampColumn, observationColumns):
 
     header = header[:-1]
 
-    if not header.endswith('\n'): #header[-2:] != '\n':
+    if not header.endswith('\n'):
         header += '\n'
 
     return header, indexes
 
 
 def get_observations(line, timestampFormat, columnsIndexes):
-
+    """
+    extract only desired observed properties from given line of .csv file
+    :param line: Line with all observations from .csv file
+    :param timestampFormat: Format in which are timestamps saved
+    :param columnsIndexes: dict in format {observation name: column index}
+    :return outLine: Line with desired observations separated with ','
+    """
     index = 0
     columns = list()
 
@@ -56,8 +99,10 @@ def get_observations(line, timestampFormat, columnsIndexes):
 
     for column in line:
         if index in columnsIndexes.values():
-            if index == columnsIndexes['urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']:
-                columns.append(get_standardized_timestamp(column, timestampFormat))
+            if index == columnsIndexes[
+              'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']:
+                columns.append(get_standardized_timestamp(column,
+                                                          timestampFormat))
             else:
                 columns.append(column)
         index += 1
@@ -70,7 +115,12 @@ def get_observations(line, timestampFormat, columnsIndexes):
 
 
 def get_standardized_timestamp(originalTimestamp, timestampFormat):
-
+    """
+    transform given timestamp into YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM format
+    :param originalTimestamp: timeStamp in original output format
+    :param timestampFormat: schema of original timestamp format
+    :return standardizedTimestamp: timestamp in istSOS acceptable format
+    """
     # TODO: Support more formats
     if timestampFormat == 'YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM':
         standardizedTimestamp = timestampFormat
