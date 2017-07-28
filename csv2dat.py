@@ -1,5 +1,6 @@
 import argparse
 
+
 def csv2dat(options):
 
     i = open(options['path'], 'r')
@@ -10,18 +11,8 @@ def csv2dat(options):
                                         options['observation_columns'])
     o.write(header)
 
-    # TODO: Work only with desired columns
-
     for line in i.readlines():
-        if ';' in line:
-            outLine = line.split(';')
-        else:
-            outLine = line.split(',')
-
-        outLine[0] = get_standardized_timestamp(outLine[0],
-                                                options['timestamp_format'])
-        outLine = ','.join(outLine)
-        o.write(outLine)
+        o.write(get_observations(line, options['timestamp_format'], columnsIndexes))
 
     i.close()
     o.close()
@@ -29,28 +20,58 @@ def csv2dat(options):
 
 def get_header(headerLine, timestampColumn, observationColumns):
     if ';' in headerLine:
-        header = headerLine.split(';')
+        headerLine = headerLine.split(';')
     else:
-        header = headerLine.split(',')
+        headerLine = headerLine.split(',')
 
-    indexes = list()
+    indexes = dict()
+    header = str()
     index = 0
-    for column in header:
+    for column in headerLine:
         if column.strip() == timestampColumn:
-            header[index] = 'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601'
-            indexes.append(index)
+            indexes.update({'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601': index})
+            header += 'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601,'
         elif column.strip() in observationColumns.split(','):
-            indexes.append(index)
+            indexes.update({column.strip(): index})
+            header += '{},'.format(column.strip())
         index += 1
 
-    header = ','.join(header)
+    header = header[:-1]
+
+    if not header.endswith('\n'): #header[-2:] != '\n':
+        header += '\n'
 
     return header, indexes
 
 
+def get_observations(line, timestampFormat, columnsIndexes):
+
+    index = 0
+    columns = list()
+
+    if ';' in line:
+        line = line.split(';')
+    else:
+        line = line.split(',')
+
+    for column in line:
+        if index in columnsIndexes.values():
+            if index == columnsIndexes['urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']:
+                columns.append(get_standardized_timestamp(column, timestampFormat))
+            else:
+                columns.append(column)
+        index += 1
+
+    outLine = ','.join(columns)
+    if not outLine.endswith('\n'):
+        outLine += '\n'
+
+    return outLine
+
+
 def get_standardized_timestamp(originalTimestamp, timestampFormat):
 
-    # TODO: More formats
+    # TODO: Support more formats
     if timestampFormat == 'YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM':
         standardizedTimestamp = timestampFormat
     elif timestampFormat == 'YYYYMMDD':
