@@ -1,6 +1,5 @@
 import argparse
 
-
 def csv2dat(options):
 
     i = open(options['path'], 'r')
@@ -81,14 +80,14 @@ if __name__ == '__main__':
         type=str,
         dest='path',
         required=True,
-        help='Path to CSV file')
+        help='Path to CSV file with observations')
 
     parser.add_argument(
         '-observation_columns',
         type=str,
         dest='observation_columns',
         required=True,
-        help='Name of columns with observations')
+        help='Name of columns with observations (separated with ",")')
 
     parser.add_argument(
         '-timestamp_column',
@@ -101,7 +100,8 @@ if __name__ == '__main__':
         '-timestamp_format',
         type=str,
         default='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM',
-        choices=timestampFormats)
+        choices=timestampFormats,
+        help='Format in which timestamps are provided')
 
     args = parser.parse_args()
 
