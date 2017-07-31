@@ -30,21 +30,41 @@ def csv2dat(options):
     acceptable format in .dat file
     :param options: parameters given with running this script
     """
-    i = open(options['path'], 'r')
-    datPath = get_dat_filepath(options['path'][:-4])
-    o = open(datPath, 'w')
+    if options['d'] is False:
+        i = open(options['path'], 'r')
+        datPath = get_dat_filepath(options['path'][:-4])
+        o = open(datPath, 'w')
 
-    header, columnsIndexes = get_header(i.readline(),
-                                        options['timestamp_column'],
-                                        options['observation_columns'])
-    o.write(header)
+        header, columnsIndexes = get_header(i.readline(),
+                                            options['timestamp_column'],
+                                            options['observation_columns'])
+        o.write(header)
 
-    for line in i.readlines():
-        o.write(get_observations(line, options['timestamp_format'],
-                                 columnsIndexes))
+        for line in i.readlines():
+            o.write(get_observations(line, options['timestamp_format'],
+                                     columnsIndexes))
 
-    i.close()
-    o.close()
+        i.close()
+        o.close()
+    else:
+        import glob
+        files = glob.glob("{}*.csv".format(options['path']))
+        for file in files:
+            i = open(file, 'r')
+            datPath = get_dat_filepath(file[:-4])
+            o = open(datPath, 'w')
+
+            header, columnsIndexes = get_header(i.readline(),
+                                                options['timestamp_column'],
+                                                options['observation_columns'])
+            o.write(header)
+
+            for line in i.readlines():
+                o.write(get_observations(line, options['timestamp_format'],
+                                         columnsIndexes))
+
+            i.close()
+            o.close()
 
 
 def get_dat_filepath(csvPath):
@@ -212,7 +232,8 @@ if __name__ == '__main__':
         type=str,
         dest='path',
         required=True,
-        help='Path to CSV file with observations')
+        help='Path to CSV file with observations'
+             '(only working directory with files when using -d)')
 
     parser.add_argument(
         '-observation_columns',
@@ -234,6 +255,12 @@ if __name__ == '__main__':
         default='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM',
         choices=timestampFormats,
         help='Format in which timestamps are provided')
+
+    parser.add_argument(
+        '-d',
+        action='store_true',
+        help='Use if you would like to convert all .csv files in your '
+             'directory')
 
     args = parser.parse_args()
 
