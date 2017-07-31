@@ -36,7 +36,7 @@ timestamp_format='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM'
 OPTIND=1
 for i in "$@"
 do
-    case $i in
+    case "$i" in
         -h|-\?|--help)
             show_help
             exit
@@ -78,7 +78,7 @@ workspace=${csv_path%/*}
 
 printf "creating .dat from your .csv"
 python csv2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
- -observation_columns=$observation_columns -timestamp_format=$timestamp_format
+ -observation_columns=$observation_columns -timestamp_format="$timestamp_format"
 printf "\ndone\n"
 
 printf "\nuploading your .dat file on the server"
