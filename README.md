@@ -67,6 +67,9 @@ bash import2istsos.sh csv_path=* observation_columns=* timestamp_column=* timest
 If you got message saying  `> Insert observation success: True`, your
 data were imported and everything was OK. 
 
+NOTICE: A .dat file was created in your .csv file directory. If you wish to
+delete it, you have to do it yourself. 
+
 Need help? Don't know what these parameters mean? No problem, just run this
 command:
 ```
@@ -105,6 +108,9 @@ python scripts/csv2istsos.py -u * -s * -o * -p * -w * -m *
 
 If you got message saying  `> Insert observation success: True`, your
 data were imported and everything was OK. 
+
+NOTICE: A .dat file was created in your .csv file directory. If you wish to
+delete it, you have to do it yourself. 
 
 Need help? Don't know what those parameters in commands mean? No problem, just
 run on of those commands with flag `--help`:
