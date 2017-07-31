@@ -135,6 +135,23 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
             originalTimestamp[2],
             originalTimestamp[1],
             originalTimestamp[0])
+    elif timestampFormat == 'DD.MM.YY HH:MM:SS':
+        import time
+        thisYear = time.strftime('%Y')
+
+        timestampParts = [originalTimestamp[:2], originalTimestamp[3:5],
+                          originalTimestamp[6:8], originalTimestamp[9:11],
+                          originalTimestamp[12:14], originalTimestamp[15:17]]
+
+        if int(timestampParts[2]) <= int(thisYear[2:]):
+            timestampParts[2] = '20{}'.format(timestampParts[2])
+        else:
+            timestampParts[2] = '19{}'.format(timestampParts[2])
+
+        standardizedTimestamp = '{}-{}-{}T{}:{}:{}.000000+01:00'.format(
+            timestampParts[2], timestampParts[1],
+            timestampParts[0], timestampParts[3],
+            timestampParts[4], timestampParts[5])
     elif timestampFormat == 'DD.MM.YY HH:MM:SS AM/PM':
         import time
         thisYear = time.strftime('%Y')
@@ -160,7 +177,8 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
 
 if __name__ == '__main__':
     timestampFormats = ['YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM', 'YYYYMMDD',
-                        'DD.MM.YYYY', 'DD.MM.YY HH:MM:SS AM/PM']
+                        'DD.MM.YYYY', 'DD.MM.YY HH:MM:SS',
+                        'DD.MM.YY HH:MM:SS AM/PM']
 
     parser = argparse.ArgumentParser(
         description='Import data from a csv file on an istSOS server.')
