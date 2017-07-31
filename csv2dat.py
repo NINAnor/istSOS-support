@@ -129,6 +129,12 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
             originalTimestamp[:4],
             originalTimestamp[4:6],
             originalTimestamp[6:])
+    elif timestampFormat == 'YYYYMMDDHH':
+        standardizedTimestamp = '{}-{}-{}T{}:00:00.000000+01:00'.format(
+            originalTimestamp[:4],
+            originalTimestamp[4:6],
+            originalTimestamp[6:8],
+            originalTimestamp[8:])
     elif timestampFormat == 'DD.MM.YYYY':
         originalTimestamp = originalTimestamp.split('.')
         standardizedTimestamp = '{}-{}-{}T00:00:00.000000+01:00'.format(
@@ -177,7 +183,7 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
 
 if __name__ == '__main__':
     timestampFormats = ['YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM', 'YYYYMMDD',
-                        'DD.MM.YYYY', 'DD.MM.YY HH:MM:SS',
+                        'DD.MM.YYYY', 'DD.MM.YY HH:MM:SS', 'YYYYMMDDHH',
                         'DD.MM.YY HH:MM:SS AM/PM']
 
     parser = argparse.ArgumentParser(
