@@ -31,7 +31,8 @@ def csv2dat(options):
     :param options: parameters given with running this script
     """
     i = open(options['path'], 'r')
-    o = open('{}.dat'.format(options['path'][:-4]), 'w')
+    datPath = get_dat_filepath(options['path'][:-4])
+    o = open(datPath, 'w')
 
     header, columnsIndexes = get_header(i.readline(),
                                         options['timestamp_column'],
@@ -44,6 +45,23 @@ def csv2dat(options):
 
     i.close()
     o.close()
+
+
+def get_dat_filepath(csvPath):
+    """
+    get the path to .dat file and give it today's timestamp suffix if not given
+    :param csvPath: path to the .csv file
+    :return: path to .dat file with timestamp as suffix
+    """
+    try:
+        int(csvPath[-14:])
+        datPath = '{}.dat'.format(csvPath)
+    except ValueError:
+        import time
+        timestampSuffix = time.strftime('%Y%m%d%H%M%S.dat')
+        datPath = '{}_{}'.format(csvPath, timestampSuffix)
+
+    return datPath
 
 
 def get_header(headerLine, timestampColumn, observationColumns):
