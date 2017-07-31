@@ -121,8 +121,8 @@ python scripts/csv2istsos.py --help
 
 ## Example 
 
-I want to upload ids and temperatures to the server `localhost/istsos/`, on service `myservice` and offering
-`temporary`. 
+I want to upload ids and temperatures to the server `localhost/istsos/`, on
+service `myservice` and offering `temporary`. 
 
 ### My sample data
 
