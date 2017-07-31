@@ -50,48 +50,68 @@ Manuals are written for Linux OS.
 ### Quick way using bash script
 
 Clone this github repository to your computer:
-```git clone https://github.com/NINAnor/istSOS-support.git```
+```
+git clone https://github.com/NINAnor/istSOS-support.git
+```
 
 Go to the new directory `istSOS-support`. Mostly:
-```cd istSOS-support```
+```
+cd istSOS-support
+```
 
 Run shell script with your own parameters (instead of asterisks):
-```bash import2istsos.sh csv_path=* observation_columns=* timestamp_column=* timestamp_format=* url=* service=* offering=* procedure=*```
+```
+bash import2istsos.sh csv_path=* observation_columns=* timestamp_column=* timestamp_format=* url=* service=* offering=* procedure=*
+```
 
 If you got message saying  `> Insert observation success: True`, your
 data were imported and everything was OK. 
 
 Need help? Don't know what these parameters mean? No problem, just run this
 command:
-```bash import2istsos.sh --help```
+```
+bash import2istsos.sh --help
+```
 
 ### Slower, but more thorough and much cooler way
 
 Clone this github repository to your computer:
-```git clone https://github.com/NINAnor/istSOS-support.git```
+```
+git clone https://github.com/NINAnor/istSOS-support.git
+```
 
 Go to the new directory `istSOS-support`. Mostly:
-```cd istSOS-support```
+```
+cd istSOS-support
+```
 
 Run python script with your own parameters (instead of asterisks):
-```python csv2dat.py -path=* -observation_columns=* -timestamp_column=* -timestamp_format=*```
+```
+python csv2dat.py -path=* -observation_columns=* -timestamp_column=* -timestamp_format=*
+```
 
 If there is no warning message, your data were converted into istSOS
 acceptable format in .dat file in the same directory as your original file was.
 
 Now go to the istSOS directory. Mostly: 
-```cd /usr/share/istsos/```
+```
+cd /usr/share/istsos/
+```
 
 Run python script with your own parameters (instead of asterisks):
-```python scripts/csv2istsos.py -u * -s * -o * -p * -w * -m *```
+```
+python scripts/csv2istsos.py -u * -s * -o * -p * -w * -m *
+```
 
 If you got message saying  `> Insert observation success: True`, your
 data were imported and everything was OK. 
 
 Need help? Don't know what those parameters in commands mean? No problem, just
 run on of those commands with flag `--help`:
-```python csv2dat.py --help```
-```python scripts/csv2istsos.py --help```
+```
+python csv2dat.py --help
+python scripts/csv2istsos.py --help
+```
 
 ## Example 
 
