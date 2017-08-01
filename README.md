@@ -168,7 +168,7 @@ Insert ST: myprocedure
  > Insert observation success: True
 ```
 
-#### Using shell script
+#### Using python scripts
 
 ```
 python /home/user/workspace/istSOS-support/csv2dat.py -path=/home/user/Documents/myprocedure_20172807175100.csv -observation_columns=id,urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature -timestamp_column=timestamp -timestamp_format=YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM
