@@ -205,5 +205,6 @@ files beginning at `myprocedure` in the Documents folder.
 
 ## Table of contents
 
-[TOC]
+* auto-gen TOC:
+{:toc}
 
