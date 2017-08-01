@@ -1,9 +1,13 @@
 # istSOS-support
 
+----------------
+
 ## What's that? 
 
 Tools for importing data from a sensor directly on the istSOS server. 
 istSOS is a python based server for maintaining sensor observation services. 
+
+------------------
 
 ## Getting started
 
@@ -67,14 +71,12 @@ bash import2istsos.sh csv_path=* observation_columns=* timestamp_column=* timest
 If you got message saying  `> Insert observation success: True`, your
 data were imported and everything was OK. 
 
-NOTICE: A .dat file was created in your .csv file directory. If you wish to
-delete it, you have to do it yourself. 
+> **NOTE:** A `.dat` file was created in your `.csv` file directory. If you
+wish to delete it, you have to do it yourself.
 
-Need help? Don't know what these parameters mean? No problem, just run this
-command:
-```
-bash import2istsos.sh --help
-```
+> **TIP:** Need help? Don't know what these parameters mean? No problem, just
+run this command:
+```bash import2istsos.sh --help```
 
 ### Slower, but more thorough and much cooler way
 
@@ -109,15 +111,15 @@ python scripts/csv2istsos.py -u * -s * -o * -p * -w * -m *
 If you got message saying  `> Insert observation success: True`, your
 data were imported and everything was OK. 
 
-NOTICE: A .dat file was created in your .csv file directory. If you wish to
-delete it, you have to do it yourself. 
+> **NOTE:** A `.dat` file was created in your `.csv` file directory. If you
+wish to delete it, you have to do it yourself.
 
-Need help? Don't know what those parameters in commands mean? No problem, just
-run on of those commands with flag `--help`:
-```
-python csv2dat.py --help
-python scripts/csv2istsos.py --help
-```
+> **TIP:** Need help? Don't know what these parameters mean? No problem, just
+run one of these commands:
+```python csv2dat.py --help```
+```python scripts/csv2istsos.py --help```
+
+----------
 
 ## Example 
 
@@ -142,9 +144,7 @@ Data are saved in folder `/home/user/Documents/myprocedure_20172807175100.csv`
 
 ```
 cd /home/user/workspace/istSOS-support/
-bash import2istsos.sh csv_path=/home/user/Documents/myprocedure_20172807175100.csv
-observation_columns=id,urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature timestamp_column=timestamp
-timestamp_format=YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM url=http://localhost/istsos service=myservice offering=temporary procedure=myprocedure
+bash import2istsos.sh csv_path=/home/user/Documents/myprocedure_20172807175100.csv observation_columns=id,urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature timestamp_column=timestamp timestamp_format=YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM url=http://localhost/istsos service=myservice offering=temporary procedure=myprocedure
 ```
 
 Output: 
@@ -167,6 +167,10 @@ Insert ST: myprocedure
  > Values: 3
  > Insert observation success: True
 ```
+
+> **TIP:** You can also use `-d` flag and
+`csv_path=/home/user/Documents/myprocedure` to parse all `.csv` files beginning
+at `myprocedure` in the Documents folder.
 
 #### Using python scripts
 
@@ -193,8 +197,7 @@ Insert ST: myprocedure
  > Insert observation success: True
 ```
 
-
-
-
-
+> **TIP:** You can also use `-d` flag and
+`-path=/home/user/Documents/myprocedure` in `csv2dat.py` to parse all `.csv`
+files beginning at `myprocedure` in the Documents folder.
 
