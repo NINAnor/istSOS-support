@@ -13,9 +13,10 @@ Usage:
 
 Flags:
   -h, -?, --help   Show this help message and exit
+              -d   Use if you would like to convert all .csv files in your directory
 
 Parameters:
-             csv_path  Path to CSV file with observations
+             csv_path  Path to CSV file with observations (only working directory with files when using -d)
   observation_columns  Name of columns with observations (separated with ',')
      timestamp_column  Name of the column with timestamps
                        default: urn:ogc:def:parameter:x-istsos:1.0:time:iso8601
@@ -32,6 +33,7 @@ set -e
 
 timestamp_column='urn:ogc:def:parameter:x-istsos:1.0:time:iso8601'
 timestamp_format='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM'
+directory=false
 
 OPTIND=1
 for i in "$@"
@@ -40,6 +42,9 @@ do
         -h|-\?|--help)
             show_help
             exit
+            ;;
+        -d)
+            directory=true
             ;;
         csv_path=*)
             csv_path="${i#*=}"
@@ -77,8 +82,16 @@ done
 workspace=${csv_path%/*}
 
 printf "creating .dat from your .csv"
-python csv2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
- -observation_columns=$observation_columns -timestamp_format="$timestamp_format"
+if $directory;
+then
+    python csv2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+     -observation_columns=$observation_columns\
+     -timestamp_format="$timestamp_format" -d
+else
+    python csv2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+     -observation_columns=$observation_columns\
+     -timestamp_format="$timestamp_format"
+fi
 printf "\ndone\n"
 
 printf "\nuploading your .dat file on the server"
