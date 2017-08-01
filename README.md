@@ -121,6 +121,58 @@ run one of these commands:
 ```python csv2dat.py --help```
 ```python scripts/csv2istsos.py --help```
 
+---------------------------------------
+
+## Yes, but what to do with those data?
+
+You can just store them. Or you can do some analyzes above them. How? And which
+analyzes?
+
+### Using istSOS
+
+You can visualize your data on the istSOS serverin the form of charts or maps
+using the
+[data viewer](http://istsos.org/en/latest/doc/getobs.html#using-the-data-viewer).
+You can also visualize them with more advanced approach - adjust maps according
+to your needs following
+[this manual](http://istsos.org/en/latest/doc/mapping.html) or you can get
+modified observations like [here](http://istsos.org/en/latest/doc/getobs.html).
+
+Everything offer also aggregations and other data management.
+
+### Using GRASS GIS
+
+Yes, handling everything online is really cool. But sometimes you need more
+sophisticated tools, more specific environment, more and more things. In these
+cases, there is also a possibility to use GRASS GIS. 
+
+Firstly, you must extract data from your istSOS server and import them into
+GRASS GIS. So start GRASS GIS. Then you can import data directly from istSOS
+right now in three ways using AddOns from
+[this repository](http://github.com/pesekon2/GRASS-GIS-SOS-tools). 
+
+Import an offering as a vector map with layer for each observed property:
+```
+v.in.sos url=* output=* offering=*
+```
+Import an offering as a set of raster maps for each timestamps:
+```
+r.in.sos url=* output=* offering=*
+```
+Import an offering as time series of vector layers for each observed property:
+```
+t.vect.in.sos url=* output=* offering=*
+```
+
+All these AddOns have of course their own helps by typing command:
+
+```
+*.in.sos --help
+```
+
+If no error occurs, your data were successfully imported into GRASS GIS. You
+can do whateve GRASS GIS allows you to do with them.
+
 ----------
 
 ## Example 
