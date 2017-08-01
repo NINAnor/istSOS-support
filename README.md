@@ -144,12 +144,12 @@ Everything offer also aggregations and other data management.
 
 Yes, handling everything online is really cool. But sometimes you need more
 sophisticated tools, more specific environment, more and more things. In these
-cases, there is also a possibility to use GRASS GIS. 
+cases, there is also a possibility to use GRASS GIS.
 
 Firstly, you must extract data from your istSOS server and import them into
 GRASS GIS. So start GRASS GIS. Then you can import data directly from istSOS
 right now in three ways using AddOns from
-[this repository](http://github.com/pesekon2/GRASS-GIS-SOS-tools). 
+[this repository](http://github.com/pesekon2/GRASS-GIS-SOS-tools).
 
 Import an offering as a vector map with layer for each observed property:
 ```
@@ -171,7 +171,8 @@ All these AddOns have of course their own helps by typing command:
 ```
 
 If no error occurs, your data were successfully imported into GRASS GIS. You
-can do whateve GRASS GIS allows you to do with them.
+can do whatever GRASS GIS allows you to do with them (even convert them into
+other format and work with them for example in QGIS).
 
 ----------
 
