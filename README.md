@@ -203,8 +203,3 @@ Insert ST: myprocedure
 `-path=/home/user/Documents/myprocedure` in `csv2dat.py` to parse all `.csv`
 files beginning at `myprocedure` in the Documents folder.
 
-## Table of contents
-
-* auto-gen TOC:
-{:toc}
-
