@@ -85,4 +85,4 @@ if __name__ == '__main__':
                 args.__dict__['timestamp_format'],
                 args.__dict__['d'])
     else:
-        print("Your file extension isn't supported")
+        print("END: Your file extension is not supported")

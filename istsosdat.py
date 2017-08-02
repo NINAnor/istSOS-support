@@ -81,6 +81,7 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
     :return standardizedTimestamp: timestamp in istSOS compatible format
     """
     # TODO: Support more formats
+    # TODO: Support Date and time in different columns
     if timestampFormat == 'YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM':
         standardizedTimestamp = timestampFormat
     elif timestampFormat == 'YYYY-MM-DD HH:MM':
@@ -140,6 +141,9 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
             timestampParts[2], timestampParts[1],
             timestampParts[0], timestampParts[3],
             timestampParts[4], timestampParts[5])
+    else:
+        print("Your timestamp format isn't supported")
+
 
     return standardizedTimestamp
 

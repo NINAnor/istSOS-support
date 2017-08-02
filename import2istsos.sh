@@ -86,12 +86,13 @@ done
 
 workspace=${csv_path%/*}
 
-printf "creating .dat from your .csv"
+printf "creating .dat from your file\n"
 if $directory;
 then
     python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
      -observation_columns=$observation_columns -file_extension=$extension\
-     -timestamp_format="$timestamp_format" -d
+     -timestamp_format="$timestamp_format"\
+     -d | grep "Your file extension is not supported" && exit 1
 else
     python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
      -observation_columns=$observation_columns -file_extension=$extension\
