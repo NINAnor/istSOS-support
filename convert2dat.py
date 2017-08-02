@@ -22,7 +22,8 @@
 """
 
 import argparse
-from csv2dat import *
+from csv2dat import csv2dat
+from swd2dat import swd2dat
 
 
 if __name__ == '__main__':
@@ -80,6 +81,12 @@ if __name__ == '__main__':
 
     if 'csv' in args.__dict__['file_extension']:
         csv2dat(args.__dict__['path'],
+                args.__dict__['observation_columns'],
+                args.__dict__['timestamp_column'],
+                args.__dict__['timestamp_format'],
+                args.__dict__['d'])
+    elif 'swd' in args.__dict__['file_extension']:
+        swd2dat(args.__dict__['path'],
                 args.__dict__['observation_columns'],
                 args.__dict__['timestamp_column'],
                 args.__dict__['timestamp_format'],

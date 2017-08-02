@@ -28,12 +28,24 @@ def get_dat_filepath(originalPath):
     :return: path to .dat file with timestamp as suffix
     """
     try:
-        int(originalPath[-14:])
-        datPath = '{}.dat'.format(originalPath)
+        int(originalPath[-6:])
+        try:
+            int(originalPath[-14:])
+            datPath = '{}.dat'.format(originalPath)
+        except:
+            if int(originalPath[-2:]) in [1, 3, 5, 7, 8, 10, 12]:
+                datPath = '{}31235959000.dat'.format(originalPath)
+            elif int(originalPath[-2:]) in [4, 6, 9, 11]:
+                datPath = '{}30235959000.dat'.format(originalPath)
+            elif int(originalPath[-6:-2]) % 4 != 0:
+                datPath = '{}28235959000.dat'.format(originalPath)
+            else:
+                datPath = '{}29235959000.dat'.format(originalPath)
+
     except ValueError:
         import time
-        timestampSuffix = time.strftime('%Y%m%d%H%M%S.dat')
-        datPath = '{}_{}'.format(originalPath, timestampSuffix)
+        timestampSuffix = time.strftime('%Y%m%d%H%M%S')
+        datPath = '{}_{}000.dat'.format(originalPath, timestampSuffix)
 
     return datPath
 
@@ -47,22 +59,26 @@ def get_header(headerLine, timestampColumn, observationColumns):
     :return header: istSOS acceptable header with user's desired columns
     :return indexes: dictionary in format {observation name: column index}
     """
-    if ';' in headerLine:
-        headerLine = headerLine.split(';')
-    else:
-        headerLine = headerLine.split(',')
 
     indexes = dict()
     header = str()
     index = 0
+
+    if '\t' in headerLine:
+        headerLine = headerLine.split('\t')
+    elif ';' in headerLine:
+        headerLine = headerLine.split(';')
+    elif ',' in headerLine:
+        headerLine = headerLine.split(',')
+
     for column in headerLine:
-        if column.strip() == timestampColumn:
+        if column.split('(')[0].strip() == timestampColumn:
             indexes.update(
                 {'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601': index})
             header += 'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601,'
-        elif column.strip() in observationColumns.split(','):
-            indexes.update({column.strip(): index})
-            header += '{},'.format(column.strip())
+        elif column.split('(')[0].strip() in observationColumns.split(','):
+            indexes.update({column.split('(')[0].strip(): index})
+            header += '{},'.format(column.split('(')[0].strip())
         index += 1
 
     header = header[:-1]
@@ -82,6 +98,7 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
     """
     # TODO: Support more formats
     # TODO: Support Date and time in different columns
+    # TODO: Support user's own time offset
     if timestampFormat == 'YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM':
         standardizedTimestamp = timestampFormat
     elif timestampFormat == 'YYYY-MM-DD HH:MM':
@@ -144,7 +161,6 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
     else:
         print("Your timestamp format isn't supported")
 
-
     return standardizedTimestamp
 
 
@@ -159,19 +175,19 @@ def get_observations(line, timestampFormat, columnsIndexes):
     index = 0
     columns = list()
 
-    if ';' in line:
+    if '\t' in line:
+        line = line.split('\t')
+    elif ';' in line:
         line = line.split(';')
-    else:
+    elif ',' in line:
         line = line.split(',')
 
     for column in line:
-        if index in columnsIndexes.values():
-            if index == columnsIndexes[
-              'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']:
-                columns.append(get_standardized_timestamp(column,
-                                                          timestampFormat))
-            else:
-                columns.append(column)
+        if index == columnsIndexes[
+          'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']:
+            columns.append(get_standardized_timestamp(column, timestampFormat))
+        elif index in columnsIndexes.values():
+            columns.append('.'.join(column.split(',')))
         index += 1
 
     outLine = ','.join(columns)
