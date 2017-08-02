@@ -17,6 +17,7 @@ Flags:
 
 Parameters:
              csv_path  Path to CSV file with observations (only working directory with files when using -d)
+       file_extension  Extension of files with observations (not necessary when not using -d flag)
   observation_columns  Name of columns with observations (separated with ',')
      timestamp_column  Name of the column with timestamps
                        default: urn:ogc:def:parameter:x-istsos:1.0:time:iso8601
@@ -73,6 +74,9 @@ do
         observations_directory=*)
             workspace="${i#*=}"
             ;;
+        file_extension=*)
+            extension="${i#*=}"
+            ;;
         ?*)
             printf '\nERROR: Unknown option: %s\nEXECUTION STOPPED\n' "$i"
             exit
@@ -84,12 +88,12 @@ workspace=${csv_path%/*}
 printf "creating .dat from your .csv"
 if $directory;
 then
-    python csv2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
-     -observation_columns=$observation_columns\
+    python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+     -observation_columns=$observation_columns -file_extension=$extension\
      -timestamp_format="$timestamp_format" -d
 else
-    python csv2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
-     -observation_columns=$observation_columns\
+    python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+     -observation_columns=$observation_columns -file_extension=$extension\
      -timestamp_format="$timestamp_format"
 fi
 printf "\ndone\n"
