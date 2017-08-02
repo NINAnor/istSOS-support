@@ -21,96 +21,51 @@
  ***************************************************************************/
 """
 
-import argparse
 from istsosdat import *
 
 
-def csv2dat(options):
+def csv2dat(path, observationColumns, timestampColumn, timestampFormat, d):
     """
     extract user's desired data from .csv file and save them in istSOS
     acceptable format in .dat file
-    :param options: parameters given with running this script
+    :param path: path to the .csv file
+    :param observationColumns: names of columns with observation data
+    :param timestampColumn: name of column with timestamps
+    :param timestampFormat: schema of original timestamp format
+    :param d: a flag to decide whether parse just one file or whole directory
     """
-    if options['d'] is False:
-        i = open(options['path'], 'r')
-        datPath = get_dat_filepath(options['path'][:-4])
+
+    if d is False:
+        i = open(path, 'r')
+        datPath = get_dat_filepath(path[:-4])
         o = open(datPath, 'w')
 
         header, columnsIndexes = get_header(i.readline(),
-                                            options['timestamp_column'],
-                                            options['observation_columns'])
+                                            timestampColumn,
+                                            observationColumns)
         o.write(header)
 
         for line in i.readlines():
-            o.write(get_observations(line, options['timestamp_format'],
-                                     columnsIndexes))
+            o.write(get_observations(line, timestampFormat, columnsIndexes))
 
         i.close()
         o.close()
     else:
         import glob
-        files = glob.glob("{}*.csv".format(options['path']))
+        files = glob.glob("{}*.csv".format(path))
         for file in files:
             i = open(file, 'r')
             datPath = get_dat_filepath(file[:-4])
             o = open(datPath, 'w')
 
             header, columnsIndexes = get_header(i.readline(),
-                                                options['timestamp_column'],
-                                                options['observation_columns'])
+                                                timestampColumn,
+                                                observationColumns)
             o.write(header)
 
             for line in i.readlines():
-                o.write(get_observations(line, options['timestamp_format'],
+                o.write(get_observations(line, timestampFormat,
                                          columnsIndexes))
 
             i.close()
             o.close()
-
-
-if __name__ == '__main__':
-    timestampFormats = ['YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM', 'YYYYMMDD',
-                        'DD.MM.YYYY', 'DD.MM.YY HH:MM:SS', 'YYYYMMDDHH',
-                        'DD.MM.YY HH:MM:SS AM/PM']
-
-    parser = argparse.ArgumentParser(
-        description='Import data from a csv file on an istSOS server.')
-
-    parser.add_argument(
-        '-path',
-        type=str,
-        dest='path',
-        required=True,
-        help='Path to CSV file with observations'
-             '(only working directory with files when using -d)')
-
-    parser.add_argument(
-        '-observation_columns',
-        type=str,
-        dest='observation_columns',
-        required=True,
-        help='Name of columns with observations (separated with ",")')
-
-    parser.add_argument(
-        '-timestamp_column',
-        type=str,
-        dest='timestamp_column',
-        default='urn:ogc:def:parameter:x-istsos:1.0:time:iso8601',
-        help='Name of the column with timestamps')
-
-    parser.add_argument(
-        '-timestamp_format',
-        type=str,
-        default='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM',
-        choices=timestampFormats,
-        help='Format in which timestamps are provided')
-
-    parser.add_argument(
-        '-d',
-        action='store_true',
-        help='Use if you would like to convert all .csv files in your '
-             'directory')
-
-    args = parser.parse_args()
-
-    csv2dat(args.__dict__)

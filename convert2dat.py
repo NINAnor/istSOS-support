@@ -46,7 +46,7 @@ if __name__ == '__main__':
         '-file_extension',
         dest='file_extension',
         default='.csv',
-        help='Extension of file with observations '
+        help='Extension of files with observations '
              '(not necessary when not using -d flag)')
 
     parser.add_argument(
@@ -77,10 +77,13 @@ if __name__ == '__main__':
              'directory')
 
     args = parser.parse_args()
-
     print(args.__dict__)
 
     if 'csv' in args.__dict__['file_extension']:
-        csv2dat(args.__dict__)
+        csv2dat(args.__dict__['path'],
+                args.__dict__['observation_columns'],
+                args.__dict__['timestamp_column'],
+                args.__dict__['timestamp_format'],
+                args.__dict__['d'])
     else:
         print("Your file extension isn't supported")
