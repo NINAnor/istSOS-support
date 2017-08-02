@@ -28,7 +28,7 @@ from csv2dat import *
 if __name__ == '__main__':
     timestampFormats = ['YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM', 'YYYYMMDD',
                         'DD.MM.YYYY', 'DD.MM.YY HH:MM:SS', 'YYYYMMDDHH',
-                        'DD.MM.YY HH:MM:SS AM/PM']
+                        'DD.MM.YY HH:MM:SS AM/PM', 'YYYY-MM-DD HH:MM']
 
     parser = argparse.ArgumentParser(
         description='Import data from a csv file on an istSOS server.')
@@ -77,7 +77,6 @@ if __name__ == '__main__':
              'directory')
 
     args = parser.parse_args()
-    print(args.__dict__)
 
     if 'csv' in args.__dict__['file_extension']:
         csv2dat(args.__dict__['path'],

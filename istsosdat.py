@@ -83,6 +83,10 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
     # TODO: Support more formats
     if timestampFormat == 'YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM':
         standardizedTimestamp = timestampFormat
+    elif timestampFormat == 'YYYY-MM-DD HH:MM':
+        standardizedTimestamp = '{}T{}:00.000000+01:00'.format(
+            originalTimestamp[:10],
+            originalTimestamp[11:])
     elif timestampFormat == 'YYYYMMDD':
         standardizedTimestamp = '{}-{}-{}T00:00:00.000000+01:00'.format(
             originalTimestamp[:4],
