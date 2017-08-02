@@ -35,6 +35,7 @@ set -e
 timestamp_column='urn:ogc:def:parameter:x-istsos:1.0:time:iso8601'
 timestamp_format='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM'
 directory=false
+extension='csv'
 
 OPTIND=1
 for i in "$@"
