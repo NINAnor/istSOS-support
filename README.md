@@ -94,7 +94,7 @@ cd istSOS-support
 
 Run python script with your own parameters (instead of asterisks):
 ```
-python csv2dat.py -path=* -observation_columns=* -timestamp_column=* -timestamp_format=*
+python convert2dat.py -path=* -observation_columns=* -timestamp_column=* -timestamp_format=*
 ```
 
 If there is no warning message, your data were converted into istSOS
@@ -118,7 +118,7 @@ wish to delete it, you have to do it yourself.
 
 > **TIP:** Need help? Don't know what these parameters mean? No problem, just
 run one of these commands:
-```python csv2dat.py --help```
+```python convert2dat.py --help``` or
 ```python scripts/csv2istsos.py --help```
 
 ---------------------------------------
@@ -223,14 +223,14 @@ Insert ST: myprocedure
  > Insert observation success: True
 ```
 
-> **TIP:** You can also use `-d` flag and
+> **TIP:** You can also use `-d` flag, parameter `file_extension=csv` and
 `csv_path=/home/user/Documents/myprocedure` to parse all `.csv` files beginning
 at `myprocedure` in the Documents folder.
 
 #### Using python scripts
 
 ```
-python /home/user/workspace/istSOS-support/csv2dat.py -path=/home/user/Documents/myprocedure_20172807175100.csv -observation_columns=id,urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature -timestamp_column=timestamp -timestamp_format=YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM
+python /home/user/workspace/istSOS-support/convert2dat.py -path=/home/user/Documents/myprocedure_20172807175100.csv -observation_columns=id,urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature -timestamp_column=timestamp -timestamp_format=YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM
 cd /usr/share/istsos/
 python scripts/csv2istsos.py -u http://localhost/istsos -s myservice -o temporary -p myprocedure -w /home/user/Documents/ -m 1000
 ```
@@ -252,7 +252,6 @@ Insert ST: myprocedure
  > Insert observation success: True
 ```
 
-> **TIP:** You can also use `-d` flag and
-`-path=/home/user/Documents/myprocedure` in `csv2dat.py` to parse all `.csv`
-files beginning at `myprocedure` in the Documents folder.
-
+> **TIP:** You can also use `-d` flag, parameter `-file_extension=csv` and
+`-path=/home/user/Documents/myprocedure` in `convert2dat.py` to parse all
+`.csv`files beginning at `myprocedure` in the Documents folder.
