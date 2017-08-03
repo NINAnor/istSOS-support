@@ -79,13 +79,15 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if 'csv' in args.__dict__['file_extension']:
+    if 'csv' in args.__dict__['file_extension'] or \
+                    'CSV' in args.__dict__['file_extension']:
         csv2dat(args.__dict__['path'],
                 args.__dict__['observation_columns'],
                 args.__dict__['timestamp_column'],
                 args.__dict__['timestamp_format'],
                 args.__dict__['d'])
-    elif 'swd' in args.__dict__['file_extension']:
+    elif 'swd' in args.__dict__['file_extension'] or \
+                    'SWD' in args.__dict__['file_extension']:
         swd2dat(args.__dict__['path'],
                 args.__dict__['observation_columns'],
                 args.__dict__['timestamp_column'],

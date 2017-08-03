@@ -53,6 +53,9 @@ def csv2dat(path, observationColumns, timestampColumn, timestampFormat, d):
     else:
         import glob
         files = glob.glob("{}*.csv".format(path))
+        for f in glob.glob("{}*.CSV".format(path)):
+            files.append(f)
+
         for file in files:
             i = open(file, 'r')
             datPath = get_dat_filepath(file[:-4])
