@@ -78,6 +78,11 @@ if __name__ == '__main__':
         help='Use if you would like to convert all .csv files in your '
              'directory')
 
+    parser.add_argument(
+        '-t',
+        action='store_true',
+        help='Use template for observation_columns names (INDEX.SWD)')
+
     args = parser.parse_args()
 
     if args.__dict__['d'] is True and args.__dict__['path'][-1] != sep:
@@ -102,6 +107,7 @@ if __name__ == '__main__':
                 args.__dict__['observation_columns'],
                 args.__dict__['timestamp_column'],
                 args.__dict__['timestamp_format'],
-                args.__dict__['d'])
+                args.__dict__['d'],
+                args.__dict__['t'])
     else:
         print("END: Your file extension is not supported")

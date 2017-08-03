@@ -14,6 +14,7 @@ Usage:
 Flags:
   -h, -?, --help   Show this help message and exit
               -d   Use if you would like to convert all .csv files in your directory
+              -t   Use template for observation_columns names (INDEX.SWD)
 
 Parameters:
              csv_path  Path to CSV file with observations (only working directory with files when using -d)
@@ -47,6 +48,9 @@ do
             ;;
         -d)
             directory=true
+            ;;
+        -t)
+            template=true
             ;;
         csv_path=*)
             csv_path="${i#*=}"
@@ -89,14 +93,29 @@ workspace=${csv_path%/*}
 printf "creating .dat from your file\n"
 if $directory;
 then
-    python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
-     -observation_columns=$observation_columns -file_extension=$extension\
-     -timestamp_format="$timestamp_format"\
-     -d | grep "Your file extension is not supported" && exit 1
+    if $template;
+    then
+        python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+         -observation_columns=$observation_columns -file_extension=$extension\
+         -timestamp_format="$timestamp_format"\
+         -d -t #| grep "Your file extension is not supported" && exit 1
+    else
+        python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+         -observation_columns=$observation_columns -file_extension=$extension\
+         -timestamp_format="$timestamp_format"\
+         -d -t #| grep "Your file extension is not supported" && exit 1
+    fi
 else
-    python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
-     -observation_columns=$observation_columns -file_extension=$extension\
-     -timestamp_format="$timestamp_format"
+    if $template;
+    then
+        python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+         -observation_columns=$observation_columns -file_extension=$extension\
+         -timestamp_format="$timestamp_format" -t
+    else
+        python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+         -observation_columns=$observation_columns -file_extension=$extension\
+         -timestamp_format="$timestamp_format"
+    fi
 fi
 printf "\ndone\n"
 

@@ -59,7 +59,6 @@ def get_header(headerLine, timestampColumn, observationColumns):
     :return header: istSOS acceptable header with user's desired columns
     :return indexes: dictionary in format {observation name: column index}
     """
-
     indexes = dict()
     header = str()
     index = 0
@@ -195,3 +194,25 @@ def get_observations(line, timestampFormat, columnsIndexes):
         outLine += '\n'
 
     return outLine
+
+
+def get_metadata(indexFile):
+    """
+    Load observation columns names from template file in param format
+    :param indexFile: Path to file with template of observation columns names
+    :return observationColumns: Observation columns names from template file
+    """
+    print('Using file {} as a template for names of observation '
+          'columns'.format(indexFile))
+    observationColumns = list()
+
+    i = open(indexFile, 'r')
+
+    for line in i.readlines():
+        observationColumn = line.split('\t')[1].split('(')[0]
+        observationColumns.append(observationColumn.strip())
+        observationColumns = ','.join(observationColumns)
+
+    i.close()
+
+    return observationColumns

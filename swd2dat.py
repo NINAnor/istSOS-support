@@ -25,7 +25,8 @@ from os import sep
 from istsosdat import *
 
 
-def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d):
+def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d,
+            useTemplate):
     """
     extract user's desired data from .swd file and save them in istSOS
     acceptable format in .dat file
@@ -34,12 +35,17 @@ def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d):
     :param timestampColumn: name of column with timestamps
     :param timestampFormat: schema of original timestamp format
     :param d: a flag to decide whether parse just one file or whole directory
+    :param t: if given, use observation columns names from INDEX.SWD
     """
 
     if d is False:
         i = open(path, 'r')
         datPath = get_dat_filepath(path[:-4])
         o = open(datPath, 'w')
+
+        if useTemplate is True:
+            indexFile = '{}{}INDEX.SWD'.format(path.rsplit(sep, 1)[0], sep)
+            observationColumns = get_metadata(indexFile)
 
         header, columnsIndexes = get_header(i.readline(),
                                             timestampColumn,
@@ -62,9 +68,16 @@ def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d):
 
         index = 0
         for f in files:
-            if f.split(sep)[-1] == 'INDEX.SWD' or f == 'index.swd':
+            if f.split(sep)[-1] in ['INDEX.SWD', 'index.swd']:
                 files.pop(index)
             index += 1
+
+        if useTemplate is True:
+            if path[-1] == sep:
+                indexFile = '{}INDEX.SWD'.format(path)
+            else:
+                indexFile = '{}{}INDEX.SWD'.format(path.rsplit(sep, 1)[0], sep)
+            observationColumns = get_metadata(indexFile)
 
         for file in files:
             i = open(file, 'r')
@@ -85,5 +98,3 @@ def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d):
 
             i.close()
             o.close()
-
-# TODO: search for index.swd
