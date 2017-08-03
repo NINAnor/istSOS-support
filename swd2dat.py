@@ -21,6 +21,7 @@
  ***************************************************************************/
 """
 
+from os import sep
 from istsosdat import *
 
 
@@ -35,23 +36,54 @@ def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d):
     :param d: a flag to decide whether parse just one file or whole directory
     """
 
-    # TODO: Support -d flag
-    i = open(path, 'r')
-    datPath = get_dat_filepath(path[:-4])
-    o = open(datPath, 'w')
+    if d is False:
+        i = open(path, 'r')
+        datPath = get_dat_filepath(path[:-4])
+        o = open(datPath, 'w')
 
-    header, columnsIndexes = get_header(i.readline(),
-                                        timestampColumn,
-                                        observationColumns)
-    o.write(header)
+        header, columnsIndexes = get_header(i.readline(),
+                                            timestampColumn,
+                                            observationColumns)
+        o.write(header)
 
-    i.readline()
-    i.readline()
+        i.readline()
+        i.readline()
 
-    for line in i.readlines():
-        o.write(get_observations(line, timestampFormat, columnsIndexes))
+        for line in i.readlines():
+            o.write(get_observations(line, timestampFormat, columnsIndexes))
 
-    i.close()
-    o.close()
+        i.close()
+        o.close()
+    else:
+        import glob
+        files = glob.glob("{}*.swd".format(path))
+        for f in glob.glob("{}*.SWD".format(path)):
+            files.append(f)
+
+        index = 0
+        for f in files:
+            if f.split(sep)[-1] == 'INDEX.SWD' or f == 'index.swd':
+                files.pop(index)
+            index += 1
+
+        for file in files:
+            i = open(file, 'r')
+            datPath = get_dat_filepath(file[:-4])
+            o = open(datPath, 'w')
+
+            header, columnsIndexes = get_header(i.readline(),
+                                                timestampColumn,
+                                                observationColumns)
+            o.write(header)
+
+            i.readline()
+            i.readline()
+
+            for line in i.readlines():
+                o.write(get_observations(line, timestampFormat,
+                                         columnsIndexes))
+
+            i.close()
+            o.close()
 
 # TODO: search for index.swd
