@@ -22,6 +22,7 @@
 """
 
 import argparse
+from os import sep
 from csv2dat import csv2dat
 from swd2dat import swd2dat
 
@@ -78,6 +79,15 @@ if __name__ == '__main__':
              'directory')
 
     args = parser.parse_args()
+
+    if args.__dict__['d'] is True and args.__dict__['path'][-1] != sep:
+        print("WARNING: Your path doesn't end with '{}'. It will parse all "
+              "files beginning with '{}' and ending with '{}' in the path"
+              "'{}{}'".format(sep,
+                              args.__dict__['path'].split(sep)[-1],
+                              args.__dict__['file_extension'],
+                              args.__dict__['path'].rsplit(sep, 1)[0],
+                              sep))
 
     if 'csv' in args.__dict__['file_extension'] or \
                     'CSV' in args.__dict__['file_extension']:
