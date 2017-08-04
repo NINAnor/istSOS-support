@@ -67,13 +67,13 @@ cd istSOS-support
 
 Run shell script with your own parameters (instead of asterisks):
 ```
-bash import2istsos.sh csv_path=* observation_columns=* timestamp_column=* timestamp_format=* url=* service=* offering=* procedure=*
+bash import2istsos.sh file_path=* observation_columns=* timestamp_column=* timestamp_format=* url=* service=* offering=* procedure=*
 ```
 
 If you got message saying  `> Insert observation success: True`, your
 data were imported and everything was OK. 
 
-> **NOTE:** A `.dat` file was created in your `.csv` file directory. If you
+> **NOTE:** A `.dat` file(s) was (were) created in your file directory. If you
 wish to delete it, you have to do it yourself.
 
 > **TIP:** Need help? Don't know what these parameters mean? No problem, just
@@ -113,7 +113,7 @@ python scripts/csv2istsos.py -u * -s * -o * -p * -w * -m *
 If you got message saying  `> Insert observation success: True`, your
 data were imported and everything was OK. 
 
-> **NOTE:** A `.dat` file was created in your `.csv` file directory. If you
+> **NOTE:** A `.dat` file(s) was (were) created in your file directory. If you
 wish to delete it, you have to do it yourself.
 
 > **TIP:** Need help? Don't know what these parameters mean? No problem, just
@@ -185,7 +185,7 @@ service `myservice` and offering `temporary`.
 
 Repository cloned in `/home/user/workspace/`
 
-Data are saved in folder `/home/user/Documents/myprocedure_20172807175100.csv`
+Data are saved here: `/home/user/Documents/myprocedure_20172807175100.csv`
 
 | timestamp                        | id | garbage | urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature |
 |----------------------------------|----|---------|:--------------------------------------------------------:|
@@ -199,12 +199,12 @@ Data are saved in folder `/home/user/Documents/myprocedure_20172807175100.csv`
 
 ```
 cd /home/user/workspace/istSOS-support/
-bash import2istsos.sh csv_path=/home/user/Documents/myprocedure_20172807175100.csv observation_columns=id,urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature timestamp_column=timestamp timestamp_format=YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM url=http://localhost/istsos service=myservice offering=temporary procedure=myprocedure
+bash import2istsos.sh file_path=/home/user/Documents/myprocedure_20172807175100.csv observation_columns=id,urn:ogc:def:parameter:x-istsos:1.0:meteo:air:temperature timestamp_column=timestamp timestamp_format=YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM url=http://localhost/istsos service=myservice offering=temporary procedure=myprocedure
 ```
 
 Output: 
 ```
-creating .dat from your .csv
+creating .dat from your file
 done
 
 uploading your .dat file on the server
@@ -224,8 +224,8 @@ Insert ST: myprocedure
 ```
 
 > **TIP:** You can also use `-d` flag, parameter `file_extension=csv` and
-`csv_path=/home/user/Documents/myprocedure` to parse all `.csv` files beginning
-at `myprocedure` in the Documents folder.
+`file_path=/home/user/Documents/myprocedure` to parse all `.csv` files
+beginning at `myprocedure` in the `Documents` folder.
 
 #### Using python scripts
 
@@ -254,4 +254,4 @@ Insert ST: myprocedure
 
 > **TIP:** You can also use `-d` flag, parameter `-file_extension=csv` and
 `-path=/home/user/Documents/myprocedure` in `convert2dat.py` to parse all
-`.csv`files beginning at `myprocedure` in the Documents folder.
+`.csv`files beginning at `myprocedure` in the `Documents` folder.
