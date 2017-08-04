@@ -40,14 +40,13 @@ if __name__ == '__main__':
         type=str,
         dest='path',
         required=True,
-        help='Path to CSV file with observations '
+        help='Path to a file with observations '
              '(only working directory with files when using -d flag)')
 
-    # TODO: .csv shouldn't be default extension!
     parser.add_argument(
         '-file_extension',
         dest='file_extension',
-        default='.csv',
+        default='.SWD',
         help='Extension of files with observations '
              '(not necessary when not using -d flag)')
 
@@ -75,8 +74,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '-d',
         action='store_true',
-        help='Use if you would like to convert all .csv files in your '
-             'directory')
+        help='Use if you would like to convert all files with defined extension'
+             'in the directory')
 
     parser.add_argument(
         '-t',

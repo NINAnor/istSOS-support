@@ -17,7 +17,7 @@ Flags:
               -t   Use template for observation_columns names (INDEX.SWD)
 
 Parameters:
-             csv_path  Path to CSV file with observations (only working directory with files when using -d)
+            file_path  Path to a file with observations (only working directory with files when using -d)
        file_extension  Extension of files with observations (not necessary when not using -d flag)
   observation_columns  Name of columns with observations (separated with ',')
      timestamp_column  Name of the column with timestamps
@@ -53,8 +53,8 @@ do
         -t)
             template=true
             ;;
-        csv_path=*)
-            csv_path="${i#*=}"
+        file_path=*)
+            file_path="${i#*=}"
             ;;
         timestamp_column=*)
             timestamp_column="${i#*=}"
@@ -89,19 +89,19 @@ do
     esac
 done
 
-workspace=${csv_path%/*}
+workspace=${file_path%/*}
 
 printf "creating .dat from your file\n"
 if $directory;
 then
     if $template;
     then
-        python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+        python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
          -d -t | grep "Your file extension is not supported" && exit 1
     else
-        python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+        python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
          -d | grep "Your file extension is not supported" && exit 1
@@ -109,11 +109,11 @@ then
 else
     if $template;
     then
-        python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+        python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format" -t
     else
-        python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
+        python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"
     fi
