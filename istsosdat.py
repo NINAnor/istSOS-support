@@ -47,6 +47,9 @@ def get_dat_filepath(originalPath):
         timestampSuffix = time.strftime('%Y%m%d%H%M%S')
         datPath = '{}_{}000.dat'.format(originalPath, timestampSuffix)
 
+    if datPath[-22] != '_':
+        datPath = '{}_{}'.format(datPath[:-21], datPath[-21:])
+
     return datPath
 
 
