@@ -107,13 +107,15 @@ if $directory;
 then
     if $template;
     then
-        python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
+        python convert2dat.py -path=$file_path\
+         -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
          -timestamp_offset=$timestamp_offset -d\
           -t | grep "Your file extension is not supported" && exit 1
     else
-        python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
+        python convert2dat.py -path=$file_path\
+         -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
          -timestamp_offset=$timestamp_offset\
@@ -122,12 +124,14 @@ then
 else
     if $template;
     then
-        python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
+        python convert2dat.py -path=$file_path
+         -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
          -timestamp_offset=$timestamp_offset -t
     else
-        python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
+        python convert2dat.py -path=$file_path
+         -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
          -timestamp_offset=$timestamp_offset
