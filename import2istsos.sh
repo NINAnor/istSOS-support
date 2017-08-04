@@ -123,5 +123,5 @@ printf "\ndone\n"
 printf "\nuploading your .dat file on the server"
 cd /usr/share/istsos
 python scripts/csv2istsos.py -m 1000 -p $procedure -o $offering -u $url\
- -s $service -w $workspace -e '.dat'
+ -s $service -w $workspace
 
