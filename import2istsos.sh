@@ -36,6 +36,7 @@ set -e
 timestamp_column='urn:ogc:def:parameter:x-istsos:1.0:time:iso8601'
 timestamp_format='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM'
 directory=false
+template=false
 extension='csv'
 
 OPTIND=1
@@ -98,12 +99,12 @@ then
         python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
-         -d -t #| grep "Your file extension is not supported" && exit 1
+         -d -t | grep "Your file extension is not supported" && exit 1
     else
         python convert2dat.py -path=$csv_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
-         -d -t #| grep "Your file extension is not supported" && exit 1
+         -d | grep "Your file extension is not supported" && exit 1
     fi
 else
     if $template;
