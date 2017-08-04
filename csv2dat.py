@@ -24,7 +24,8 @@
 from istsosdat import *
 
 
-def csv2dat(path, observationColumns, timestampColumn, timestampFormat, d):
+def csv2dat(path, observationColumns, timestampColumn, timestampFormat, offset,
+            d):
     """
     extract user's desired data from .csv file and save them in istSOS
     acceptable format in .dat file
@@ -32,6 +33,7 @@ def csv2dat(path, observationColumns, timestampColumn, timestampFormat, d):
     :param observationColumns: names of columns with observation data
     :param timestampColumn: name of column with timestamps
     :param timestampFormat: schema of original timestamp format
+    :param offset: offset of timestamp
     :param d: a flag to decide whether parse just one file or whole directory
     """
 
@@ -46,7 +48,8 @@ def csv2dat(path, observationColumns, timestampColumn, timestampFormat, d):
         o.write(header)
 
         for line in i.readlines():
-            o.write(get_observations(line, timestampFormat, columnsIndexes))
+            o.write(get_observations(line, timestampFormat, offset,
+                                     columnsIndexes))
 
         i.close()
         o.close()
@@ -67,7 +70,7 @@ def csv2dat(path, observationColumns, timestampColumn, timestampFormat, d):
             o.write(header)
 
             for line in i.readlines():
-                o.write(get_observations(line, timestampFormat,
+                o.write(get_observations(line, timestampFormat, offset,
                                          columnsIndexes))
 
             i.close()

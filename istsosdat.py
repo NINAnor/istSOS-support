@@ -91,39 +91,43 @@ def get_header(headerLine, timestampColumn, observationColumns):
     return header, indexes
 
 
-def get_standardized_timestamp(originalTimestamp, timestampFormat):
+def get_standardized_timestamp(originalTimestamp, timestampFormat, offset):
     """
     transform given timestamp into YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM format
     :param originalTimestamp: timeStamp in original output format
     :param timestampFormat: schema of original timestamp format
+    :param offset: offset of timestamp
     :return standardizedTimestamp: timestamp in istSOS compatible format
     """
     # TODO: Support more formats
     # TODO: Support Date and time in different columns
-    # TODO: Support user's own time offset
     if timestampFormat == 'YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM':
         standardizedTimestamp = timestampFormat
     elif timestampFormat == 'YYYY-MM-DD HH:MM':
-        standardizedTimestamp = '{}T{}:00.000000+01:00'.format(
+        standardizedTimestamp = '{}T{}:00.000000{}'.format(
             originalTimestamp[:10],
-            originalTimestamp[11:])
+            originalTimestamp[11:],
+            offset)
     elif timestampFormat == 'YYYYMMDD':
-        standardizedTimestamp = '{}-{}-{}T00:00:00.000000+01:00'.format(
+        standardizedTimestamp = '{}-{}-{}T00:00:00.000000{}'.format(
             originalTimestamp[:4],
             originalTimestamp[4:6],
-            originalTimestamp[6:])
+            originalTimestamp[6:],
+            offset)
     elif timestampFormat == 'YYYYMMDDHH':
-        standardizedTimestamp = '{}-{}-{}T{}:00:00.000000+01:00'.format(
+        standardizedTimestamp = '{}-{}-{}T{}:00:00.000000{}'.format(
             originalTimestamp[:4],
             originalTimestamp[4:6],
             originalTimestamp[6:8],
-            originalTimestamp[8:])
+            originalTimestamp[8:],
+            offset)
     elif timestampFormat == 'DD.MM.YYYY':
         originalTimestamp = originalTimestamp.split('.')
-        standardizedTimestamp = '{}-{}-{}T00:00:00.000000+01:00'.format(
+        standardizedTimestamp = '{}-{}-{}T00:00:00.000000{}'.format(
             originalTimestamp[2],
             originalTimestamp[1],
-            originalTimestamp[0])
+            originalTimestamp[0],
+            offset)
     elif timestampFormat == 'DD.MM.YY HH:MM:SS':
         import time
         thisYear = time.strftime('%Y')
@@ -137,10 +141,10 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
         else:
             timestampParts[2] = '19{}'.format(timestampParts[2])
 
-        standardizedTimestamp = '{}-{}-{}T{}:{}:{}.000000+01:00'.format(
+        standardizedTimestamp = '{}-{}-{}T{}:{}:{}.000000{}'.format(
             timestampParts[2], timestampParts[1],
             timestampParts[0], timestampParts[3],
-            timestampParts[4], timestampParts[5])
+            timestampParts[4], timestampParts[5], offset)
     elif timestampFormat == 'DD.MM.YY HH:MM:SS AM/PM':
         import time
         thisYear = time.strftime('%Y')
@@ -156,21 +160,22 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat):
         else:
             timestampParts[2] = '19{}'.format(timestampParts[2])
 
-        standardizedTimestamp = '{}-{}-{}T{}:{}:{}.000000+01:00'.format(
+        standardizedTimestamp = '{}-{}-{}T{}:{}:{}.000000{}'.format(
             timestampParts[2], timestampParts[1],
             timestampParts[0], timestampParts[3],
-            timestampParts[4], timestampParts[5])
+            timestampParts[4], timestampParts[5], offset)
     else:
         print("Your timestamp format isn't supported")
 
     return standardizedTimestamp
 
 
-def get_observations(line, timestampFormat, columnsIndexes):
+def get_observations(line, timestampFormat, offset, columnsIndexes):
     """
     extract only desired observed properties from given line of file
     :param line: Line with all observations from the original file
     :param timestampFormat: Format in which are timestamps saved
+    :param offset: offset of timestamp
     :param columnsIndexes: dict in format {observation name: column index}
     :return outLine: Line with desired observations separated with ','
     """
@@ -187,7 +192,8 @@ def get_observations(line, timestampFormat, columnsIndexes):
     for column in line:
         if index == columnsIndexes[
           'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']:
-            columns.append(get_standardized_timestamp(column, timestampFormat))
+            columns.append(get_standardized_timestamp(column, timestampFormat,
+                                                      offset))
         elif index in columnsIndexes.values():
             columns.append('.'.join(column.split(',')))
         index += 1

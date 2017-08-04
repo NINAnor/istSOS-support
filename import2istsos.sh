@@ -7,7 +7,7 @@ cat << EOF
 Import data from a csv file on an istSOS server.
 
 Usage:
- bash import2istsos.sh csv_path=* observation_columns=* [timestamp_column=*]
+ bash import2istsos.sh file_path=* observation_columns=* [timestamp_column=*]
                        [timestamp_format=*] url=* service=* offering=*
                        procedure=*
 
@@ -22,6 +22,7 @@ Parameters:
   observation_columns  Name of columns with observations (separated with ',')
      timestamp_column  Name of the column with timestamps
                        default: urn:ogc:def:parameter:x-istsos:1.0:time:iso8601
+     timestamp_offset  Offset of timestamp in format +HH:MM
      timestamp_format  Format in which timestamps are provided
                        default: YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM
                   url  istSOS Server address IP or domain name
@@ -35,9 +36,10 @@ set -e
 
 timestamp_column='urn:ogc:def:parameter:x-istsos:1.0:time:iso8601'
 timestamp_format='YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM'
+timestamp_offset='+01:00'
+extension='swd'
 directory=false
 template=false
-extension='csv'
 
 OPTIND=1
 for i in "$@"
@@ -64,6 +66,9 @@ do
             ;;
         timestamp_format=*)
             timestamp_format="${i#*=}"
+            ;;
+        timestamp_offset=*)
+            timestamp_offset="${i#*=}"
             ;;
         service=*)
             service="${i#*=}"
@@ -99,11 +104,13 @@ then
         python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
-         -d -t | grep "Your file extension is not supported" && exit 1
+         -timestamp_offset=$timestamp_offset -d\
+          -t | grep "Your file extension is not supported" && exit 1
     else
         python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
+         -timestamp_offset=$timestamp_offset\
          -d | grep "Your file extension is not supported" && exit 1
     fi
 else
@@ -111,11 +118,13 @@ else
     then
         python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
-         -timestamp_format="$timestamp_format" -t
+         -timestamp_format="$timestamp_format"\
+         -timestamp_offset=$timestamp_offset -t
     else
         python convert2dat.py -path=$file_path -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
-         -timestamp_format="$timestamp_format"
+         -timestamp_format="$timestamp_format"\
+         -timestamp_offset=$timestamp_offset
     fi
 fi
 printf "\ndone\n"

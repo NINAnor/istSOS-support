@@ -72,6 +72,12 @@ if __name__ == '__main__':
         help='Format in which timestamps are provided')
 
     parser.add_argument(
+        '-timestamp_offset',
+        type=str,
+        default='+01:00',
+        help='Offset of timestamp in format +HH:MM')
+
+    parser.add_argument(
         '-d',
         action='store_true',
         help='Use if you would like to convert all files with defined extension'
@@ -99,6 +105,7 @@ if __name__ == '__main__':
                 args.__dict__['observation_columns'],
                 args.__dict__['timestamp_column'],
                 args.__dict__['timestamp_format'],
+                args.__dict__['timestamp_offset'],
                 args.__dict__['d'])
     elif 'swd' in args.__dict__['file_extension'] or \
                     'SWD' in args.__dict__['file_extension']:
@@ -106,6 +113,7 @@ if __name__ == '__main__':
                 args.__dict__['observation_columns'],
                 args.__dict__['timestamp_column'],
                 args.__dict__['timestamp_format'],
+                args.__dict__['timestamp_offset'],
                 args.__dict__['d'],
                 args.__dict__['t'])
     else:

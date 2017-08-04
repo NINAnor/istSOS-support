@@ -25,8 +25,8 @@ from os import sep
 from istsosdat import *
 
 
-def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d,
-            useTemplate):
+def swd2dat(path, observationColumns, timestampColumn, timestampFormat, offset,
+            d, useTemplate):
     """
     extract user's desired data from .swd file and save them in istSOS
     acceptable format in .dat file
@@ -34,8 +34,9 @@ def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d,
     :param observationColumns: names of columns with observation data
     :param timestampColumn: name of column with timestamps
     :param timestampFormat: schema of original timestamp format
+    :param offset: offset of timestamp
     :param d: a flag to decide whether parse just one file or whole directory
-    :param t: if given, use observation columns names from INDEX.SWD
+    :param useTemplate: if given, use observation columns names from INDEX.SWD
     """
 
     if d is False:
@@ -56,7 +57,8 @@ def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d,
         i.readline()
 
         for line in i.readlines():
-            o.write(get_observations(line, timestampFormat, columnsIndexes))
+            o.write(get_observations(line, timestampFormat, offset,
+                                     columnsIndexes))
 
         i.close()
         o.close()
@@ -93,7 +95,7 @@ def swd2dat(path, observationColumns, timestampColumn, timestampFormat, d,
             i.readline()
 
             for line in i.readlines():
-                o.write(get_observations(line, timestampFormat,
+                o.write(get_observations(line, timestampFormat, offset,
                                          columnsIndexes))
 
             i.close()
