@@ -211,7 +211,8 @@ def get_metadata(indexFile):
     for line in i.readlines():
         observationColumn = line.split('\t')[1].split('(')[0]
         observationColumns.append(observationColumn.strip())
-        observationColumns = ','.join(observationColumns)
+
+    observationColumns = ','.join(observationColumns)
 
     i.close()
 
