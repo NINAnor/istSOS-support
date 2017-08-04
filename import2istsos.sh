@@ -7,19 +7,24 @@ cat << EOF
 Import data from a csv file on an istSOS server.
 
 Usage:
- bash import2istsos.sh file_path=* observation_columns=* [timestamp_column=*]
+ bash import2istsos.sh file_path=* [file_extension=*] observation_columns=*
+                       [timestamp_column=*] [timestamp_offset=*]
                        [timestamp_format=*] url=* service=* offering=*
                        procedure=*
 
 Flags:
   -h, -?, --help   Show this help message and exit
-              -d   Use if you would like to convert all .csv files in your directory
+              -d   Use if you would like to convert all .csv files in your
+                   directory
               -t   Use template for observation_columns names (INDEX.SWD)
 
 Parameters:
-            file_path  Path to a file with observations (only working directory with files when using -d)
-       file_extension  Extension of files with observations (not necessary when not using -d flag)
+            file_path  Path to a file with observations
+                       (only working directory with files when using -d)
+       file_extension  Extension of files with observations
+                       (required when using -d flag)
   observation_columns  Name of columns with observations (separated with ',')
+                       (not required when using SWD file extension and -t flag)
      timestamp_column  Name of the column with timestamps
                        default: urn:ogc:def:parameter:x-istsos:1.0:time:iso8601
      timestamp_offset  Offset of timestamp in format +HH:MM
@@ -27,7 +32,8 @@ Parameters:
                        default: YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM
                   url  istSOS Server address IP or domain name
               service  The name of the service instance
-             offering  A collection of sensor used to conveniently group them up
+             offering  A collection of sensor used to conveniently
+                       group them up
             procedure  Who provide the observations
 EOF
 }
