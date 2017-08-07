@@ -54,7 +54,6 @@ if __name__ == '__main__':
         '-observation_columns',
         type=str,
         dest='observation_columns',
-        required=True,
         help='Name of columns with observations (separated with ",")')
 
     parser.add_argument(
@@ -76,6 +75,11 @@ if __name__ == '__main__':
         type=str,
         default='+01:00',
         help='Offset of timestamp in format +HH:MM')
+
+    parser.add_argument(
+        '-procedure',
+        type=str,
+        help='Who provides the observations')
 
     parser.add_argument(
         '-d',
@@ -106,6 +110,7 @@ if __name__ == '__main__':
                 args.__dict__['timestamp_column'],
                 args.__dict__['timestamp_format'],
                 args.__dict__['timestamp_offset'],
+                args.__dict__['procedure'],
                 args.__dict__['d'])
     elif 'swd' in args.__dict__['file_extension'] or \
                     'SWD' in args.__dict__['file_extension']:
@@ -114,6 +119,7 @@ if __name__ == '__main__':
                 args.__dict__['timestamp_column'],
                 args.__dict__['timestamp_format'],
                 args.__dict__['timestamp_offset'],
+                args.__dict__['procedure'],
                 args.__dict__['d'],
                 args.__dict__['t'])
     else:

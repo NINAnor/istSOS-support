@@ -34,7 +34,7 @@ Parameters:
               service  The name of the service instance
              offering  A collection of sensor used to conveniently
                        group them up
-            procedure  Who provide the observations
+            procedure  Who provides the observations
 EOF
 }
 
@@ -111,14 +111,14 @@ then
          -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
-         -timestamp_offset=$timestamp_offset -d\
+         -timestamp_offset=$timestamp_offset -procedure=$procedure -d\
           -t | grep "Your file extension is not supported" && exit 1
     else
         python convert2dat.py -path=$file_path\
          -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
-         -timestamp_offset=$timestamp_offset\
+         -timestamp_offset=$timestamp_offset -procedure=$procedure\
          -d | grep "Your file extension is not supported" && exit 1
     fi
 else

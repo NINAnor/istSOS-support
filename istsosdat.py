@@ -20,32 +20,57 @@
  ***************************************************************************/
 """
 
+from os import sep
 
-def get_dat_filepath(originalPath):
+
+def get_dat_filepath(originalPath, procedure=None):
     """
     get the path to .dat file and give it today's timestamp suffix if not given
     :param originalPath: path to the original file
+    :param procedure: who provides the observations
     :return: path to .dat file with timestamp as suffix
     """
+    # TODO: procedure prefix
     try:
         int(originalPath[-6:])
         try:
             int(originalPath[-14:])
-            datPath = '{}.dat'.format(originalPath)
-        except:
-            if int(originalPath[-2:]) in [1, 3, 5, 7, 8, 10, 12]:
-                datPath = '{}31235959000.dat'.format(originalPath)
-            elif int(originalPath[-2:]) in [4, 6, 9, 11]:
-                datPath = '{}30235959000.dat'.format(originalPath)
-            elif int(originalPath[-6:-2]) % 4 != 0:
-                datPath = '{}28235959000.dat'.format(originalPath)
+            if procedure:
+                prefix = '{}{}{}'.format(originalPath.rsplit(sep, 1)[0],
+                                         sep,
+                                         procedure)
             else:
-                datPath = '{}29235959000.dat'.format(originalPath)
+                prefix = originalPath[:-17]
+            datPath = '{}{}.dat'.format(prefix, originalPath[-17:])
+        except:
+            if procedure:
+                prefix = '{}{}{}_{}'.format(originalPath.rsplit(sep, 1)[0],
+                                            sep,
+                                            procedure,
+                                            originalPath[-6:])
+            else:
+                prefix = originalPath
+            if int(originalPath[-2:]) in [1, 3, 5, 7, 8, 10, 12]:
+                datPath = '{}31235959000.dat'.format(prefix)
+            elif int(originalPath[-2:]) in [4, 6, 9, 11]:
+                datPath = '{}30235959000.dat'.format(prefix)
+            elif int(originalPath[-6:-2]) % 4 != 0:
+                datPath = '{}28235959000.dat'.format(prefix)
+            else:
+                datPath = '{}29235959000.dat'.format(prefix)
 
     except ValueError:
         import time
         timestampSuffix = time.strftime('%Y%m%d%H%M%S')
-        datPath = '{}_{}000.dat'.format(originalPath, timestampSuffix)
+
+        if procedure:
+            prefix = '{}{}{}'.format(originalPath.rsplit(sep, 1)[0],
+                                     sep,
+                                     procedure)
+        else:
+            prefix = originalPath
+
+        datPath = '{}{}000.dat'.format(prefix, timestampSuffix)
 
     if datPath[-22] != '_':
         datPath = '{}_{}'.format(datPath[:-21], datPath[-21:])

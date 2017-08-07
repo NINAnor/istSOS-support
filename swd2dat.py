@@ -26,7 +26,7 @@ from istsosdat import *
 
 
 def swd2dat(path, observationColumns, timestampColumn, timestampFormat, offset,
-            d, useTemplate):
+            procedure, d, useTemplate):
     """
     extract user's desired data from .swd file and save them in istSOS
     acceptable format in .dat file
@@ -35,13 +35,14 @@ def swd2dat(path, observationColumns, timestampColumn, timestampFormat, offset,
     :param timestampColumn: name of column with timestamps
     :param timestampFormat: schema of original timestamp format
     :param offset: offset of timestamp
+    :param procedure: who provides the observations
     :param d: a flag to decide whether parse just one file or whole directory
     :param useTemplate: if given, use observation columns names from INDEX.SWD
     """
 
     if d is False:
         i = open(path, 'r')
-        datPath = get_dat_filepath(path[:-4])
+        datPath = get_dat_filepath(path[:-4], procedure)
         o = open(datPath, 'w')
 
         if useTemplate is True:
@@ -83,7 +84,7 @@ def swd2dat(path, observationColumns, timestampColumn, timestampFormat, offset,
 
         for file in files:
             i = open(file, 'r')
-            datPath = get_dat_filepath(file[:-4])
+            datPath = get_dat_filepath(file[:-4], procedure)
             o = open(datPath, 'w')
 
             header, columnsIndexes = get_header(i.readline(),
