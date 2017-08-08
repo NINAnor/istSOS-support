@@ -6,7 +6,7 @@
  Extract user's desired data from his file and save them in istSOS
  acceptable format in .dat file
                               -------------------
-        begin                : 2017-07-30
+        begin                : 2017-07-30 (funny, it's my birthday)
         author               : Ondrej Pesek
         email                : pesej.ondrek@gmail.com
         copyright            : (C) Norwegian Institute for Nature Research
@@ -23,8 +23,41 @@
 
 import argparse
 from os import sep
-from csv2dat import csv2dat
-from swd2dat import swd2dat
+from scripts.csv2dat import csv2dat
+from scripts.swd2dat import swd2dat
+
+
+def main():
+    if args.__dict__['d'] is True and args.__dict__['path'][-1] != sep:
+        print("WARNING: Your path doesn't end with '{}'. It will parse all "
+              "files beginning with '{}' and ending with '{}' in the path"
+              "'{}{}'".format(sep,
+                              args.__dict__['path'].split(sep)[-1],
+                              args.__dict__['file_extension'],
+                              args.__dict__['path'].rsplit(sep, 1)[0],
+                              sep))
+
+    if 'csv' in args.__dict__['file_extension'] or \
+                    'CSV' in args.__dict__['file_extension']:
+        csv2dat(args.__dict__['path'],
+                args.__dict__['observation_columns'],
+                args.__dict__['timestamp_column'],
+                args.__dict__['timestamp_format'],
+                args.__dict__['timestamp_offset'],
+                args.__dict__['procedure'],
+                args.__dict__['d'])
+    elif 'swd' in args.__dict__['file_extension'] or \
+                    'SWD' in args.__dict__['file_extension']:
+        swd2dat(args.__dict__['path'],
+                args.__dict__['observation_columns'],
+                args.__dict__['timestamp_column'],
+                args.__dict__['timestamp_format'],
+                args.__dict__['timestamp_offset'],
+                args.__dict__['procedure'],
+                args.__dict__['d'],
+                args.__dict__['t'])
+    else:
+        print("END: Your file extension is not supported")
 
 
 if __name__ == '__main__':
@@ -33,7 +66,7 @@ if __name__ == '__main__':
                         'DD.MM.YY HH:MM:SS AM/PM', 'YYYY-MM-DD HH:MM']
 
     parser = argparse.ArgumentParser(
-        description='Import data from a csv file on an istSOS server.')
+        description='Import data from a file (or files) on an istSOS server.')
 
     parser.add_argument(
         '-path',
@@ -94,33 +127,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.__dict__['d'] is True and args.__dict__['path'][-1] != sep:
-        print("WARNING: Your path doesn't end with '{}'. It will parse all "
-              "files beginning with '{}' and ending with '{}' in the path"
-              "'{}{}'".format(sep,
-                              args.__dict__['path'].split(sep)[-1],
-                              args.__dict__['file_extension'],
-                              args.__dict__['path'].rsplit(sep, 1)[0],
-                              sep))
-
-    if 'csv' in args.__dict__['file_extension'] or \
-                    'CSV' in args.__dict__['file_extension']:
-        csv2dat(args.__dict__['path'],
-                args.__dict__['observation_columns'],
-                args.__dict__['timestamp_column'],
-                args.__dict__['timestamp_format'],
-                args.__dict__['timestamp_offset'],
-                args.__dict__['procedure'],
-                args.__dict__['d'])
-    elif 'swd' in args.__dict__['file_extension'] or \
-                    'SWD' in args.__dict__['file_extension']:
-        swd2dat(args.__dict__['path'],
-                args.__dict__['observation_columns'],
-                args.__dict__['timestamp_column'],
-                args.__dict__['timestamp_format'],
-                args.__dict__['timestamp_offset'],
-                args.__dict__['procedure'],
-                args.__dict__['d'],
-                args.__dict__['t'])
-    else:
-        print("END: Your file extension is not supported")
+    main()

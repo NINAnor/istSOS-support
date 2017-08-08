@@ -30,7 +30,7 @@ def get_dat_filepath(originalPath, procedure=None):
     :param procedure: who provides the observations
     :return: path to .dat file with timestamp as suffix
     """
-    # TODO: procedure prefix
+
     try:
         int(originalPath[-6:])
         try:
@@ -87,6 +87,7 @@ def get_header(headerLine, timestampColumn, observationColumns):
     :return header: istSOS acceptable header with user's desired columns
     :return indexes: dictionary in format {observation name: column index}
     """
+
     indexes = dict()
     header = str()
     index = 0
@@ -124,6 +125,7 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat, offset):
     :param offset: offset of timestamp
     :return standardizedTimestamp: timestamp in istSOS compatible format
     """
+
     # TODO: Support more formats
     # TODO: Support Date and time in different columns
     if timestampFormat == 'YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM':
@@ -204,6 +206,7 @@ def get_observations(line, timestampFormat, offset, columnsIndexes):
     :param columnsIndexes: dict in format {observation name: column index}
     :return outLine: Line with desired observations separated with ','
     """
+
     index = 0
     columns = list()
 
@@ -214,14 +217,20 @@ def get_observations(line, timestampFormat, offset, columnsIndexes):
     elif ',' in line:
         line = line.split(',')
 
-    for column in line:
-        if index == columnsIndexes[
-          'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']:
-            columns.append(get_standardized_timestamp(column, timestampFormat,
-                                                      offset))
-        elif index in columnsIndexes.values():
-            columns.append('.'.join(column.split(',')))
-        index += 1
+    try:
+        for column in line:
+            if index == columnsIndexes[
+              'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']:
+                columns.append(get_standardized_timestamp(column,
+                                                          timestampFormat,
+                                                          offset))
+            elif index in columnsIndexes.values():
+                columns.append('.'.join(column.split(',')))
+            index += 1
+    except KeyError as e:
+        print('\nKEY ERROR ({}): Column not found\nTry to check index files '
+              'or observation_columns inputs\n'.format(e.__str__()))
+        raise e
 
     outLine = ','.join(columns)
     if not outLine.endswith('\n'):
@@ -236,6 +245,7 @@ def get_metadata(indexFile):
     :param indexFile: Path to file with template of observation columns names
     :return observationColumns: Observation columns names from template file
     """
+
     print('Using file {} as a template for names of observation '
           'columns'.format(indexFile))
     observationColumns = list()
