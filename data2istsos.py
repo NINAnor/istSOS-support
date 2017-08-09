@@ -104,7 +104,7 @@ def upload_data(procedureDirectories):
                 ['python',
                  'scripts/csv2istsos.py',
                  '-w={}'.format(observationsPath),
-                 '-s=ninatest{}'.format(args.__dict__['device_type']),
+                 '-s={}'.format(args.__dict__['device_type']),
                  '-u={}'.format(args.__dict__['url']),
                  '-o={}'.format(off),
                  '-p={}'.format(procedure)],
