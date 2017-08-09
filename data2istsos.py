@@ -33,7 +33,8 @@ def main():
     walk_dir = args.__dict__['path']
 
     if args.__dict__['device_type'] == 'templogger':
-        procedureDirectories = {'hoydegradient': list(), 'lemenplott': list()}
+        procedureDirectories = {'hoydegradient': list(), 'lemenplott': list(),
+                                'templogstasjoner': list()}
         for root, subdirs, files in os.walk(walk_dir):
             for sd in subdirs:
                 if ('Høydegradient' in root or 'høydegradient' in root or
@@ -46,6 +47,12 @@ def main():
                                 os.path.join(root, sd) not in \
                                 procedureDirectories['lemenplott']:
                     procedureDirectories['lemenplott'].append(
+                        os.path.join(root, sd, ''))
+                elif ('Templogstasjoner' in root or
+                              'templogstasjoner' in root) and \
+                                os.path.join(root, sd) not in \
+                                procedureDirectories['templogstasjoner']:
+                    procedureDirectories['templogstasjoner'].append(
                         os.path.join(root, sd, ''))
 
         create_dats(procedureDirectories)
@@ -97,7 +104,7 @@ def upload_data(procedureDirectories):
                 ['python',
                  'scripts/csv2istsos.py',
                  '-w={}'.format(observationsPath),
-                 '-s=ninatest',#{}'.format(args.__dict__['device_type']),
+                 '-s=ninatest{}'.format(args.__dict__['device_type']),
                  '-u={}'.format(args.__dict__['url']),
                  '-o={}'.format(off),
                  '-p={}'.format(procedure)],
