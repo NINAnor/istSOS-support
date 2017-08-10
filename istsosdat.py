@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  istsosdat
@@ -239,7 +240,7 @@ def get_observations(line, timestampFormat, offset, columnsIndexes):
     return outLine
 
 
-def get_metadata(indexFile):
+def get_metadata(indexFile, returnUnits=False):
     """
     Load observation columns names from template file in param format
     :param indexFile: Path to file with template of observation columns names
@@ -253,7 +254,12 @@ def get_metadata(indexFile):
     i = open(indexFile, 'r')
 
     for line in i.readlines():
-        observationColumn = line.split('\t')[1].split('(')[0]
+        if returnUnits is False:
+            observationColumn = line.split('\t')[1].split('(')[0]
+        else:
+            observationColumn = line.split('\t')[1]
+            if '*' in observationColumn:
+                observationColumn = '°'.join(observationColumn.split('*'))
         observationColumns.append(observationColumn.strip())
 
     observationColumns = ','.join(observationColumns)
