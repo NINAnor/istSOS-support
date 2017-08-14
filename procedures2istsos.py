@@ -30,16 +30,19 @@ import istsosdat
 
 def main():
 
-    insert_procedures(args.__dict__['url'], args.__dict__['path'],
-                      args.__dict__['device_type'])
+    insert_procedures(args.__dict__['url'],
+                      args.__dict__['path'],
+                      args.__dict__['device_type'],
+                      args.__dict__['geometry_index'])
 
 
-def insert_procedures(url, procedurePath, deviceType):
+def insert_procedures(url, procedurePath, deviceType, geometryIndex):
     """
     Insert procedures from your path to your server
     :param url: url address of your server
     :param procedurePath: Path to the directory containing location folders
                           with procedures
+    :param geometryIndex: Path to the CSV file with procedures coords metadata
     :param deviceType: Type of your device (mostly sensor)
     """
     walk_dir = procedurePath
@@ -50,7 +53,8 @@ def insert_procedures(url, procedurePath, deviceType):
         if subdirs == []:
             observedProperties = get_observed_properties(root)
             location = get_location(root.split(os.sep)[-2].split(' ')[-1],
-                                    root.split(os.sep)[-1])
+                                    root.split(os.sep)[-1],
+                                    geometryIndex)
 
             procedure = {
                 'system_id': root.split(os.sep)[-1],
@@ -108,16 +112,15 @@ def get_observed_properties(directory):
     return outputs
 
 
-def get_location(locationName, procedure):
+def get_location(locationName, procedure, geometryIndex):
     """
     Get location based on sensor location and its name
     :param locationName: Geographical name of procedure location
     :param procedure: Name of procedure
+    :param geometryIndex: Path to the CSV file with procedures coords metadata
     :return location: json dictionary containing location name, crs and coords
     """
-    with open(os.path.join(os.path.dirname(__file__),
-                           'metadata',
-                           'geometry_index.csv'), 'r') as geometry:
+    with open(geometryIndex, 'r') as geometry:
         z = 0
         for line in geometry.readlines():
             lineFeatures = line.split(',')
@@ -202,7 +205,17 @@ if __name__ == '__main__':
     parser.add_argument(
         '-url',
         type=str,
+        required=True,
         help='istSOS Server address IP or domain name')
+
+    parser.add_argument(
+        '-geometry_index',
+        type=str,
+        default=os.path.join(os.path.dirname(__file__),
+                             'metadata',
+                             'geometry_index.csv'),
+        help='Path to the CSV file with sensors metadata '
+             '(names, crs, coordinates)')
 
     args = parser.parse_args()
 
