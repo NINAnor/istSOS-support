@@ -30,12 +30,21 @@ import istsosdat
 
 def main():
 
-    insert_procedures(args.__dict__['url'], args.__dict__['path'], args.__dict__['device_type'])
+    insert_procedures(args.__dict__['url'], args.__dict__['path'],
+                      args.__dict__['device_type'])
 
 
 def insert_procedures(url, procedurePath, deviceType):
+    """
+    Insert procedures from your path to your server
+    :param url: url address of your server
+    :param procedurePath: Path to the directory containing location folders
+                          with procedures
+    :param deviceType: Type of your device (mostly sensor)
+    """
     walk_dir = procedurePath
-    proceduresURL = '{}wa/istsos/services/{}/procedures'.format(url, deviceType)
+    proceduresURL = '{}wa/istsos/services/{}/procedures'.format(url,
+                                                                deviceType)
 
     for root, subdirs, files in os.walk(walk_dir):
         if subdirs == []:
@@ -66,11 +75,17 @@ def insert_procedures(url, procedurePath, deviceType):
 
             r = requests.post(proceduresURL, data=json.dumps(procedure))
             if not r.json()['success']:
-                print('Problem with procedure {}'.format(procedure['system_id']))
+                print('Problem with procedure {}'.format(
+                    procedure['system_id']))
                 print(r.json())
 
 
 def get_observed_properties(directory):
+    """
+    Get observed properties of procedures in given directory
+    :param directory: Directory containing procedures and index file
+    :return outputs: List of observed properties based on an index file
+    """
     outputs = [{'name': 'Time',
                 'definition':
                     'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601',
@@ -94,6 +109,12 @@ def get_observed_properties(directory):
 
 
 def get_location(locationName, procedure):
+    """
+    Get location based on sensor location and its name
+    :param locationName: Geographical name of procedure location
+    :param procedure: Name of procedure
+    :return location: json dictionary containing location name, crs and coords
+    """
     with open(os.path.join(os.path.dirname(__file__),
                            'metadata',
                            'geometry_index.csv'), 'r') as geometry:
@@ -114,10 +135,12 @@ def get_location(locationName, procedure):
                 elif procedure[1] == '6':
                     stationSuffix = 'Bis'
 
-                z = procedure.split('cm')[0].strip().split('-')[-1].split(' ')[-1]
+                z = procedure.split(
+                    'cm')[0].strip().split('-')[-1].split(' ')[-1]
                 procedure = '{} - {}'.format(procedure[0:2], stationSuffix)
 
-            if procedure in lineFeatures or '{}-temp'.format(procedure) in lineFeatures:
+            if procedure in lineFeatures or \
+                            '{}-temp'.format(procedure) in lineFeatures:
                 coordinates = [lineFeatures[3], lineFeatures[4], z]
                 # TODO: Make crs more general
                 if lineFeatures[2] == '32V':
@@ -150,7 +173,8 @@ def get_location(locationName, procedure):
                              'coordinates': coordinates},
                 'crs': {'type': 'name',
                         'properties': {'name': crs}},
-                'properties': {'name': '{}-{}'.format(locationName, procedure)}}
+                'properties': {'name': '{}-{}'.format(locationName,
+                                                      procedure)}}
 
     return location
 
@@ -190,4 +214,3 @@ if __name__ == '__main__':
                               os.sep))
 
     main()
-
