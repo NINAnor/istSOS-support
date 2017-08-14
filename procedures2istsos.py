@@ -66,7 +66,7 @@ def insert_procedures(url, procedurePath, deviceType):
 
             r = requests.post(proceduresURL, data=json.dumps(procedure))
             if not r.json()['success']:
-                print("problem with ", procedure['system_id'])
+                print('Problem with procedure {}'.format(procedure['system_id']))
                 print(r.json())
 
 
