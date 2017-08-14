@@ -196,6 +196,7 @@ if __name__ == '__main__':
         '-device_type',
         type=str,
         choices=supportedDevices,
+        default='templogger',
         help='Type of your device (mostly sensor)')
 
     parser.add_argument(
