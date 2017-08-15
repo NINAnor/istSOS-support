@@ -52,7 +52,13 @@ def insert_procedures(url, procedurePath, deviceType, geometryIndex):
     for root, subdirs, files in os.walk(walk_dir):
         if subdirs == []:
             observedProperties = get_observed_properties(root)
-            location = get_location(root.split(os.sep)[-2].split(' ')[-1],
+            if deviceType == 'templogger':
+                if 'templogstasjoner' in root or 'Templogstasjoner' in root:
+                    locationName = root.split(os.sep)[-2].split(' ')[-1]
+                else:
+                    locationName = root.split(os.sep)[-2].split(' ')[2:]
+                    locationName = '-'.join(locationName)
+            location = get_location(locationName,
                                     root.split(os.sep)[-1],
                                     geometryIndex)
 
