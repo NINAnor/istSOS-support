@@ -31,15 +31,17 @@ import istsosdat
 def main():
 
     insert_procedures(args.__dict__['url'],
+                      args.__dict__['service'],
                       args.__dict__['path'],
                       args.__dict__['device_type'],
                       args.__dict__['geometry_index'])
 
 
-def insert_procedures(url, procedurePath, deviceType, geometryIndex):
+def insert_procedures(url, service, procedurePath, deviceType, geometryIndex):
     """
     Insert procedures from your path to your server
     :param url: url address of your server
+    :param service: The name of the service instance
     :param procedurePath: Path to the directory containing location folders
                           with procedures
     :param geometryIndex: Path to the CSV file with procedures coords metadata
@@ -47,7 +49,7 @@ def insert_procedures(url, procedurePath, deviceType, geometryIndex):
     """
     walk_dir = procedurePath
     proceduresURL = '{}wa/istsos/services/{}/procedures'.format(url,
-                                                                deviceType)
+                                                                service)
 
     for root, subdirs, files in os.walk(walk_dir):
         if subdirs == []:
@@ -215,6 +217,11 @@ if __name__ == '__main__':
         help='istSOS Server address IP or domain name')
 
     parser.add_argument(
+        '-service',
+        type=str,
+        help='The name of the service instance')
+
+    parser.add_argument(
         '-geometry_index',
         type=str,
         default=os.path.join(os.path.dirname(__file__),
@@ -224,6 +231,9 @@ if __name__ == '__main__':
              '(names, crs, coordinates)')
 
     args = parser.parse_args()
+
+    if args.__dict__['service'] == '' or args.__dict__['service'] is None:
+        args.__dict__['service'] = parser.parse_args().__dict__['device_type']
 
     if args.__dict__['path'][-1] != os.sep:
         print("WARNING: Your path doesn't end with '{}'. It will parse all "
