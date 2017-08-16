@@ -104,7 +104,7 @@ def upload_data(procedureDirectories):
                 ['python',
                  'scripts/csv2istsos.py',
                  '-w={}'.format(observationsPath),
-                 '-s={}'.format(args.__dict__['device_type']),
+                 '-s={}'.format(args.__dict__['service']),
                  '-u={}'.format(args.__dict__['url']),
                  '-o={}'.format(off),
                  '-p={}'.format(procedure)],
@@ -150,6 +150,11 @@ if __name__ == '__main__':
         help='istSOS Server address IP or domain name')
 
     parser.add_argument(
+        '-service',
+        type=str,
+        help='The name of the service instance')
+
+    parser.add_argument(
         '-u',
         action='store_true',
         help='Upload converted data to a server (url parameter is required)')
@@ -160,6 +165,9 @@ if __name__ == '__main__':
         help='Force deletion of intermediates .dat files after execution')
 
     args = parser.parse_args()
+
+    if args.__dict__['service'] == '' or args.__dict__['service'] is None:
+        args.__dict__['service'] = parser.parse_args().__dict__['device_type']
 
     if args.__dict__['path'][-1] != os.sep:
         print("WARNING: Your path doesn't end with '{}'. It will parse all "
