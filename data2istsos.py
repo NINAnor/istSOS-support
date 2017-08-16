@@ -103,12 +103,12 @@ def upload_data(procedureDirectories):
             subprocess.call(
                 ['python',
                  'scripts/csv2istsos.py',
-                 '-w={}'.format(observationsPath),
+                 '-w={}'.format(os.path.abspath(observationsPath)),
                  '-s={}'.format(args.__dict__['service']),
                  '-u={}'.format(args.__dict__['url']),
                  '-o={}'.format(off),
                  '-p={}'.format(procedure)],
-                cwd='/usr/share/istsos/')
+                cwd=args.__dict__['istsos_path'])
 
 
 def delete_dat_files(procedureDirectories):
@@ -153,6 +153,12 @@ if __name__ == '__main__':
         '-service',
         type=str,
         help='The name of the service instance')
+
+    parser.add_argument(
+        '-istsos_path',
+        type=str,
+        default='/usr/share/istsos/',
+        help='Path to a directory where is istsos installed in your computer')
 
     parser.add_argument(
         '-u',
