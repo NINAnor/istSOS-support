@@ -107,7 +107,9 @@ def upload_data(procedureDirectories):
                  '-s={}'.format(args.__dict__['service']),
                  '-u={}'.format(args.__dict__['url']),
                  '-o={}'.format(off),
-                 '-p={}'.format(procedure)],
+                 '-p={}'.format(procedure),
+                 '-user={}'.format(args.__dict__['username']),
+                 '-password={}'.format(args.__dict__['password'])],
                 cwd=args.__dict__['istsos_path'])
 
 
@@ -159,6 +161,16 @@ if __name__ == '__main__':
         type=str,
         default='/usr/share/istsos/',
         help='Path to a directory where is istsos installed in your computer')
+
+    parser.add_argument(
+        '-username',
+        type=str,
+        help='Username used to access istSOS insert observation request')
+
+    parser.add_argument(
+        '-password',
+        type=str,
+        help='Password used to access istSOS insert observation request')
 
     parser.add_argument(
         '-u',
