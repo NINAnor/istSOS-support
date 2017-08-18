@@ -24,7 +24,7 @@
 import requests
 import json
 import argparse
-import os
+import os, sys
 import istsosdat
 
 
@@ -34,10 +34,14 @@ def main():
                       args.__dict__['service'],
                       args.__dict__['path'],
                       args.__dict__['device_type'],
-                      args.__dict__['geometry_index'])
+                      args.__dict__['geometry_index'],
+                      args.__dict__['istsos_path'],
+                      args.__dict__['username'],
+                      args.__dict__['password'])
 
 
-def insert_procedures(url, service, procedurePath, deviceType, geometryIndex):
+def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
+                      istsosPath, username, password):
     """
     Insert procedures from your path to your server
     :param url: url address of your server
@@ -46,10 +50,17 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex):
                           with procedures
     :param geometryIndex: Path to the CSV file with procedures coords metadata
     :param deviceType: Type of your device (mostly sensor)
+    :param istsosPath: Path to a directory where is istsos installed
+    :param username: Username used to access istSOS server
+    :param password: Password used to access istSOS server
     """
     walk_dir = procedurePath
     proceduresURL = '{}wa/istsos/services/{}/procedures'.format(url,
                                                                 service)
+
+    sys.path.append(istsosPath)
+    from lib.requests.auth import HTTPBasicAuth
+    auth = HTTPBasicAuth(username, password)
 
     for root, subdirs, files in os.walk(walk_dir):
         if subdirs == []:
@@ -85,7 +96,7 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex):
                 'outputs': observedProperties
             }
 
-            r = requests.post(proceduresURL, data=json.dumps(procedure))
+            r = requests.post(proceduresURL, data=json.dumps(procedure), auth=auth)
             if not r.json()['success']:
                 print('Problem with procedure {}'.format(
                     procedure['system_id']))
@@ -229,6 +240,22 @@ if __name__ == '__main__':
                              'geometry_index.csv'),
         help='Path to the CSV file with sensors metadata '
              '(names, crs, coordinates)')
+
+    parser.add_argument(
+        '-istsos_path',
+        type=str,
+        default='/usr/share/istsos/',
+        help='Path to a directory where is istsos installed in your computer')
+
+    parser.add_argument(
+        '-username',
+        type=str,
+        help='Username used to access istSOS server')
+
+    parser.add_argument(
+        '-password',
+        type=str,
+        help='Password used to access istSOS server')
 
     args = parser.parse_args()
 

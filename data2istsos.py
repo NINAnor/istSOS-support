@@ -165,12 +165,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '-username',
         type=str,
-        help='Username used to access istSOS insert observation request')
+        help='Username used to access istSOS server')
 
     parser.add_argument(
         '-password',
         type=str,
-        help='Password used to access istSOS insert observation request')
+        help='Password used to access istSOS server')
 
     parser.add_argument(
         '-u',
