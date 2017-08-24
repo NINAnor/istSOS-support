@@ -25,6 +25,7 @@ import argparse
 from os import sep
 from scripts.csv2dat import csv2dat
 from scripts.swd2dat import swd2dat
+from scripts.xls2dat import xls2dat
 
 
 def main():
@@ -56,6 +57,14 @@ def main():
                 args.__dict__['procedure'],
                 args.__dict__['d'],
                 args.__dict__['t'])
+    elif 'xls' in args.__dict__['file_extension'] or \
+                    'XLS' in args.__dict__['file_extension']:
+        xls2dat(args.__dict__['path'],
+                args.__dict__['timestamp_column'],
+                args.__dict__['timestamp_format'],
+                args.__dict__['timestamp_offset'],
+                args.__dict__['procedure'],
+                args.__dict__['d'])
     else:
         print("END: Your file extension is not supported")
 
