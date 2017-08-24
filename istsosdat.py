@@ -79,14 +79,16 @@ def get_dat_filepath(originalPath, procedure=None):
     return datPath
 
 
-def get_header(headerLine, timestampColumn, observationColumns):
+def get_header(headerLine, timestampColumn, observationColumns, timeColumn=None):
     """
     creates istSOS compatible header for .dat file
-    :param headerLine: first line of your file
-    :param timestampColumn: name of column with timestamps
-    :param observationColumns: names of columns with observation data
+    :param headerLine: First line of your file
+    :param timestampColumn: Name of column with timestamps (or dates)
+    :param observationColumns: Names of columns with observation data
+    :param timeColumn: Name of column with times if date and time in separates
     :return header: istSOS acceptable header with user's desired columns
     :return indexes: dictionary in format {observation name: column index}
+    :return timeColumnIndex: index of column with times if they are separated
     """
 
     indexes = dict()
@@ -108,6 +110,9 @@ def get_header(headerLine, timestampColumn, observationColumns):
         elif column.split('(')[0].strip() in observationColumns.split(','):
             indexes.update({column.split('(')[0].strip(): index})
             header += '{},'.format(column.split('(')[0].strip())
+        elif timeColumn and column.split('(')[0].strip() == timeColumn:
+            timeColumnIndex = index
+
         index += 1
 
     header = header[:-1]
@@ -115,7 +120,10 @@ def get_header(headerLine, timestampColumn, observationColumns):
     if not header.endswith('\n'):
         header += '\n'
 
-    return header, indexes
+    if not timeColumn:
+        return header, indexes
+    else:
+        return header, indexes, timeColumnIndex
 
 
 def get_standardized_timestamp(originalTimestamp, timestampFormat, offset):
@@ -128,7 +136,6 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat, offset):
     """
 
     # TODO: Support more formats
-    # TODO: Support Date and time in different columns
     if timestampFormat == 'YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM':
         standardizedTimestamp = timestampFormat
     elif timestampFormat == 'YYYY-MM-DD HH:MM':
@@ -141,6 +148,15 @@ def get_standardized_timestamp(originalTimestamp, timestampFormat, offset):
             originalTimestamp[:4],
             originalTimestamp[4:6],
             originalTimestamp[6:],
+            offset)
+    elif timestampFormat == 'DATE+TIME':
+        standardizedTimestamp = '{}-{}-{}T{}:{}:{}.000000{}'.format(
+            originalTimestamp[10:14],
+            originalTimestamp[7:9],
+            originalTimestamp[4:6],
+            originalTimestamp[18:20],
+            originalTimestamp[21:23],
+            originalTimestamp[24:26],
             offset)
     elif timestampFormat == 'YYYYMMDDHH':
         standardizedTimestamp = '{}-{}-{}T{}:00:00.000000{}'.format(

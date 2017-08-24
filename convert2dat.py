@@ -63,7 +63,8 @@ def main():
 if __name__ == '__main__':
     timestampFormats = ['YYYY-MM-DDTHH:MM:SS.SSSSSS+HH:MM', 'YYYYMMDD',
                         'DD.MM.YYYY', 'DD.MM.YY HH:MM:SS', 'YYYYMMDDHH',
-                        'DD.MM.YY HH:MM:SS AM/PM', 'YYYY-MM-DD HH:MM']
+                        'DD.MM.YY HH:MM:SS AM/PM', 'YYYY-MM-DD HH:MM',
+                        'DATE+TIME']
 
     parser = argparse.ArgumentParser(
         description='Import data from a file (or files) on an istSOS server.')
