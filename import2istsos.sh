@@ -112,14 +112,14 @@ then
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
          -timestamp_offset=$timestamp_offset -procedure=$procedure -d\
-          -t | grep "Your file extension is not supported" && exit 1
+          -t #| grep "Your file extension is not supported" && exit 1
     else
         python convert2dat.py -path=$file_path\
          -timestamp_column=$timestamp_column\
          -observation_columns=$observation_columns -file_extension=$extension\
          -timestamp_format="$timestamp_format"\
          -timestamp_offset=$timestamp_offset -procedure=$procedure\
-         -d | grep "Your file extension is not supported" && exit 1
+         -d #| grep "Your file extension is not supported" && exit 1
     fi
 else
     if $template;

@@ -57,53 +57,78 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
     walk_dir = procedurePath
     proceduresURL = '{}wa/istsos/services/{}/procedures'.format(url,
                                                                 service)
+    # TODO: See issue about changing csv to something better
+    if geometryIndex[-4:] != '.csv':
+        geometryIndex = '{}_{}.csv'.format(geometryIndex, deviceType)
 
     sys.path.append(istsosPath)
     from lib.requests.auth import HTTPBasicAuth
     auth = HTTPBasicAuth(username, password)
+    requestsList = list()
 
     for root, subdirs, files in os.walk(walk_dir):
         if subdirs == []:
-            observedProperties = get_observed_properties(root)
+            observedProperties = get_observed_properties(root, deviceType,
+                                                         files)
             if deviceType == 'templogger':
                 if 'templogstasjoner' in root or 'Templogstasjoner' in root:
                     locationName = root.split(os.sep)[-2].split(' ')[-1]
                 else:
                     locationName = root.split(os.sep)[-2].split(' ')[2:]
                     locationName = '-'.join(locationName)
-            location = get_location(locationName,
-                                    root.split(os.sep)[-1],
-                                    geometryIndex)
+                location = get_location(locationName,
+                                        root.split(os.sep)[-1],
+                                        geometryIndex)
+                requestsList.append(get_procedure_request(
+                    root.split(os.sep)[-1], deviceType, location,
+                    observedProperties))
+            elif deviceType == 'TOV':
+                locationName = root.split(os.sep)[-2].split(' ')[2:]
+                locationName = '-'.join(locationName)
+                for file in files:
+                    location = get_location('{}-{}'.format(locationName,
+                                                           file[:-4]),
+                                            root.split(os.sep)[-1],
+                                            geometryIndex)
+                    requestsList.append(get_procedure_request(
+                        file[:-4], deviceType, location, observedProperties))
 
-            procedure = {
-                'system_id': root.split(os.sep)[-1],
-                'system': root.split(os.sep)[-1],
-                'description': 'Measuring fieldsensor {}'.format(
-                    root.split(os.sep)[-1]),
-                'keywords': '',
-                'classification': [{
-                    'name': 'System Type',
-                    'definition':
-                        'urn:ogc:def:classifier:x-istsos:1.0:systemType',
-                    'value': 'insitu-fixed-point'},
-                    {
-                        'name': 'Sensor Type',
-                        'definition':
-                            'urn:ogc:def:classifier:x-istsos:1.0:sensorType',
-                        'value': 'WatchDog'}],
-                'capabilities': [],
-                'location': location,
-                'outputs': observedProperties
-            }
-
-            r = requests.post(proceduresURL, data=json.dumps(procedure), auth=auth)
-            if not r.json()['success']:
-                print('Problem with procedure {}'.format(
-                    procedure['system_id']))
-                print(r.json())
+    for request in requestsList:
+        r = requests.post(proceduresURL, data=json.dumps(request), auth=auth)
+        if not r.json()['success']:
+            print('Problem with procedure {}'.format(
+                request['system_id']))
+            print(r.json())
 
 
-def get_observed_properties(directory):
+def get_procedure_request(procedureName, deviceType, location,
+                          observedProperties):
+
+    procedureName = istsosdat.standardize_norwegian(procedureName)
+    procedure = {
+        'system_id': procedureName,
+        'system': procedureName,
+        'description': 'Measuring fieldsensor {}'.format(
+            procedureName),
+        'keywords': '',
+        'classification': [{
+            'name': 'System Type',
+            'definition':
+                'urn:ogc:def:classifier:x-istsos:1.0:systemType',
+            'value': 'insitu-fixed-point'},
+            {
+                'name': 'Sensor Type',
+                'definition':
+                    'urn:ogc:def:classifier:x-istsos:1.0:sensorType',
+                'value': 'WatchDog'}],
+        'capabilities': [],
+        'location': location,
+        'outputs': observedProperties
+    }
+    return procedure
+
+
+def get_observed_properties(directory, deviceType, files):
     """
     Get observed properties of procedures in given directory
     :param directory: Directory containing procedures and index file
@@ -116,8 +141,12 @@ def get_observed_properties(directory):
                 'description': '',
                 'constraint': {}}]
 
-    observedProperties = istsosdat.get_metadata(
-        '{}{}INDEX.SWD'.format(directory, os.sep), returnUnits=True)
+    if deviceType == 'templogger':
+        observedProperties = istsosdat.get_metadata(
+            '{}{}INDEX.SWD'.format(directory, os.sep), returnUnits=True)
+    elif deviceType == 'TOV':
+        observedProperties = istsosdat.get_metadata(
+            '{}{}{}'.format(directory, os.sep, files[0]), returnUnits=True)
 
     for observedProperty in observedProperties.split(','):
         outputs.append({
@@ -167,42 +196,40 @@ def get_location(locationName, procedure, geometryIndex):
                 # TODO: Make crs more general
                 if lineFeatures[2] == '32V':
                     crs = '32632'
-                elif lineFeatures[2] == '33W':
+                elif lineFeatures[2] == '33W' or lineFeatures[2] == '33N':
                     crs = '32633'
+                elif lineFeatures[2] == '34W':
+                    crs = '32634'
                 else:
                     raise ValueError('Unexpected coordinate system')
                 break
 
-    if procedure[0] in ['B', 'b']:
-        procedure = '{}-{}'.format(procedure.split(' ')[0], z)
-    if 'ø' in locationName:
-        locationName = 'o'.join(locationName.split('ø'))
-    if 'Ø' in locationName:
-        locationName = 'o'.join(locationName.split('Ø'))
-    if 'æ' in locationName:
-        locationName = 'ae'.join(locationName.split('æ'))
-    if 'å' in locationName:
-        locationName = 'a'.join(locationName.split('å'))
-    if 'Ы' in locationName:
-        locationName = 'o'.join(locationName.split('Ы'))
-    if 'Э' in locationName:
-        locationName = 'O'.join(locationName.split('Э'))
-    if 'Ж' in locationName:
-        locationName = 'a'.join(locationName.split('Ж'))
+    locationName = istsosdat.standardize_norwegian(locationName)
 
-    location = {'type': 'Feature',
-                'geometry': {'type': 'Point',
-                             'coordinates': coordinates},
-                'crs': {'type': 'name',
-                        'properties': {'name': crs}},
-                'properties': {'name': '{}-{}'.format(locationName,
-                                                      procedure)}}
+    if 'templogger' in geometryIndex:
+        if procedure[0] in ['B', 'b']:
+            procedure = '{}-{}'.format(procedure.split(' ')[0], z)
+
+        location = {'type': 'Feature',
+                    'geometry': {'type': 'Point',
+                                 'coordinates': coordinates},
+                    'crs': {'type': 'name',
+                            'properties': {'name': crs}},
+                    'properties': {'name': '{}-{}'.format(locationName,
+                                                          procedure)}}
+    else:
+        location = {'type': 'Feature',
+                    'geometry': {'type': 'Point',
+                                 'coordinates': coordinates},
+                    'crs': {'type': 'name',
+                            'properties': {'name': crs}},
+                    'properties': {'name': locationName}}
 
     return location
 
 
 if __name__ == '__main__':
-    supportedDevices = ['templogger']
+    supportedDevices = ['templogger', 'TOV']
 
     parser = argparse.ArgumentParser(
         description='Import devices outputs on an istSOS server.')
@@ -237,7 +264,7 @@ if __name__ == '__main__':
         type=str,
         default=os.path.join(os.path.dirname(__file__),
                              'metadata',
-                             'geometry_index.csv'),
+                             'geometry_index'),
         help='Path to the CSV file with sensors metadata '
              '(names, crs, coordinates)')
 

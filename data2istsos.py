@@ -27,6 +27,7 @@ import os
 import subprocess
 import glob
 from sys import exit
+from istsosdat import standardize_norwegian
 
 
 def main():
@@ -54,14 +55,20 @@ def main():
                                 procedureDirectories['templogstasjoner']:
                     procedureDirectories['templogstasjoner'].append(
                         os.path.join(root, sd, ''))
+    elif args.__dict__['device_type'] == 'TOV':
+        procedureDirectories = dict()
+        for root, subdirs, files in os.walk(walk_dir):
+            if subdirs == []:
+                procedureDirectories.update({root.split(os.sep)[-1]: [root,
+                                                                      files]})
 
-        create_dats(procedureDirectories)
+    create_dats(procedureDirectories)
 
-        if args.__dict__['u'] is True:
-            upload_data(procedureDirectories)
+    if args.__dict__['u'] is True:
+        upload_data(procedureDirectories)
 
-        if args.__dict__['f'] is True:
-            delete_dat_files(procedureDirectories)
+    if args.__dict__['f'] is True:
+        delete_dat_files(procedureDirectories)
 
 
 def create_dats(procedureDirectories):
@@ -70,19 +77,40 @@ def create_dats(procedureDirectories):
     :param procedureDirectories: Dictionary of directories containing data
     """
 
-    for off in procedureDirectories.keys():
-        for observationsPath in procedureDirectories[off]:
-            procedure = observationsPath.split(os.sep)[-2]
+    if args.__dict__['device_type'] == 'templogger':
+        fileExtension = 'swd'
+    elif args.__dict__['device_type'] == 'TOV':
+        fileExtension = 'xls'
 
-            p = subprocess.call(['python',
-                                 'convert2dat.py',
-                                 '-path={}'.format(observationsPath),
-                                 '-timestamp_column={}'.format(procedure),
-                                 '-timestamp_format=YYYY-MM-DD HH:MM',
-                                 '-procedure={}'.format(procedure),
-                                 '-file_extension=swd',
-                                 '-d',
-                                 '-t'])
+    for off in procedureDirectories.keys():
+        if fileExtension == 'swd':
+            for observationsPath in procedureDirectories[off]:
+                procedure = observationsPath.split(os.sep)[-2]
+
+                p = subprocess.call(
+                    ['python',
+                     'convert2dat.py',
+                     '-path={}'.format(observationsPath),
+                     '-timestamp_column={}'.format(procedure),
+                     '-timestamp_format=YYYY-MM-DD HH:MM',
+                     '-procedure={}'.format(procedure),
+                     '-file_extension={}'.format(fileExtension),
+                     '-d',
+                     '-t'])
+
+                if p != 0:
+                    print('Unexpected error. Execution stopped')
+                    delete_dat_files(procedureDirectories)
+                    exit(1)
+        elif fileExtension == 'xls':
+            p = subprocess.call([
+                'python',
+                'convert2dat.py',
+                '-path={}/'.format(procedureDirectories[off][0]),
+                '-timestamp_column=Date',
+                '-timestamp_format=DATE+TIME',
+                '-file_extension={}'.format(fileExtension),
+                '-d'])
 
             if p != 0:
                 print('Unexpected error. Execution stopped')
@@ -97,20 +125,35 @@ def upload_data(procedureDirectories):
     """
 
     for off in procedureDirectories.keys():
-        for observationsPath in procedureDirectories[off]:
-            procedure = observationsPath.split(os.sep)[-2]
+        if args.__dict__['device_type'] == 'templogger':
+            for observationsPath in procedureDirectories[off]:
+                procedure = observationsPath.split(os.sep)[-2]
 
-            subprocess.call(
-                ['python',
-                 'scripts/csv2istsos.py',
-                 '-w={}'.format(os.path.abspath(observationsPath)),
-                 '-s={}'.format(args.__dict__['service']),
-                 '-u={}'.format(args.__dict__['url']),
-                 '-o={}'.format(off),
-                 '-p={}'.format(procedure),
-                 '-user={}'.format(args.__dict__['username']),
-                 '-password={}'.format(args.__dict__['password'])],
-                cwd=args.__dict__['istsos_path'])
+                subprocess.call(
+                    ['python',
+                     'scripts/csv2istsos.py',
+                     '-w={}'.format(os.path.abspath(observationsPath)),
+                     '-s={}'.format(args.__dict__['service']),
+                     '-u={}'.format(args.__dict__['url']),
+                     '-o={}'.format(off),
+                     '-p={}'.format(procedure),
+                     '-user={}'.format(args.__dict__['username']),
+                     '-password={}'.format(args.__dict__['password'])],
+                    cwd=args.__dict__['istsos_path'])
+        elif args.__dict__['device_type'] == 'TOV':
+            for procedure in procedureDirectories[off][1]:
+                subprocess.call(
+                    ['python',
+                     'scripts/csv2istsos.py',
+                     '-w={}'.format(os.path.abspath(
+                         procedureDirectories[off][0])),
+                     '-s={}'.format(args.__dict__['service']),
+                     '-u={}'.format(args.__dict__['url']),
+                     '-o={}'.format(off),
+                     '-p={}'.format(standardize_norwegian(procedure[:-4])),
+                     '-user={}'.format(args.__dict__['username']),
+                     '-password={}'.format(args.__dict__['password'])],
+                    cwd=args.__dict__['istsos_path'])
 
 
 def delete_dat_files(procedureDirectories):
@@ -120,15 +163,25 @@ def delete_dat_files(procedureDirectories):
     """
 
     for off in procedureDirectories.keys():
-        for observationsPath in procedureDirectories[off]:
-            procedure = observationsPath.split(os.sep)[-2]
-            files = glob.glob('{}{}*.dat'.format(observationsPath, procedure))
-            for f in files:
-                os.remove(f)
+        if args.__dict__['device_type'] == 'templogger':
+            for observationsPath in procedureDirectories[off]:
+                procedure = observationsPath.split(os.sep)[-2]
+                files = glob.glob('{}{}*.dat'.format(observationsPath,
+                                                     procedure))
+                for f in files:
+                    os.remove(f)
+        elif args.__dict__['device_type'] == 'TOV':
+            for procedure in procedureDirectories[off][1]:
+                observationsPath = procedureDirectories[off][0]
+                files = glob.glob(
+                    '{}/{}*.dat'.format(observationsPath,
+                                        standardize_norwegian(procedure[:-4])))
+                for f in files:
+                    os.remove(f)
 
 
 if __name__ == '__main__':
-    supportedDevices = ['templogger']
+    supportedDevices = ['templogger', 'TOV']
 
     parser = argparse.ArgumentParser(
         description='Import devices outputs on an istSOS server.')

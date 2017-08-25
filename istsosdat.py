@@ -67,7 +67,7 @@ def get_dat_filepath(originalPath, procedure=None):
         if procedure:
             prefix = '{}{}{}'.format(originalPath.rsplit(sep, 1)[0],
                                      sep,
-                                     procedure)
+                                     standardize_norwegian(procedure))
         else:
             prefix = originalPath
 
@@ -79,7 +79,8 @@ def get_dat_filepath(originalPath, procedure=None):
     return datPath
 
 
-def get_header(headerLine, timestampColumn, observationColumns, timeColumn=None):
+def get_header(headerLine, timestampColumn, observationColumns,
+               timeColumn=None):
     """
     creates istSOS compatible header for .dat file
     :param headerLine: First line of your file
@@ -267,19 +268,54 @@ def get_metadata(indexFile, returnUnits=False):
           'columns'.format(indexFile))
     observationColumns = list()
 
-    i = open(indexFile, 'r')
+    if indexFile[-3:] == 'SWD':
+        i = open(indexFile, 'r')
 
-    for line in i.readlines():
-        if returnUnits is False:
-            observationColumn = line.split('\t')[1].split('(')[0]
-        else:
-            observationColumn = line.split('\t')[1]
-            if '*' in observationColumn:
-                observationColumn = '°'.join(observationColumn.split('*'))
-        observationColumns.append(observationColumn.strip())
+        for line in i.readlines():
+            if returnUnits is False:
+                observationColumn = line.split('\t')[1].split('(')[0]
+            else:
+                observationColumn = line.split('\t')[1]
+                if '*' in observationColumn:
+                    observationColumn = '°'.join(observationColumn.split('*'))
+            observationColumns.append(observationColumn.strip())
+
+        i.close()
+    elif indexFile[-3:] == 'xls':
+        import xlrd
+
+        xlWorkbook = xlrd.open_workbook(indexFile)
+        xlSheet = xlWorkbook.sheet_by_index(0)
+
+        for column in xlSheet.row(3):
+            if column.ctype:
+                value = column.value
+                if value == 'Temperature' or value == 'Dew Point':
+                    observationColumns.append('{} (°C)'.format(value))
+                elif value == 'Humidity':
+                    observationColumns.append('{} (%)'.format(value))
 
     observationColumns = ','.join(observationColumns)
 
-    i.close()
-
     return observationColumns
+
+def standardize_norwegian(word):
+
+    if 'ø' in word:
+        word = 'o'.join(word.split('ø'))
+    if 'Ø' in word:
+        word = 'o'.join(word.split('Ø'))
+    if 'æ' in word:
+        word = 'ae'.join(word.split('æ'))
+    if 'å' in word:
+        word = 'a'.join(word.split('å'))
+    if 'Ы' in word:
+        word = 'o'.join(word.split('Ы'))
+    if 'Э' in word:
+        word = 'O'.join(word.split('Э'))
+    if 'Ж' in word:
+        word = 'a'.join(word.split('Ж'))
+    if 'П' in word:
+        word = 'A'.join(word.split('П'))
+
+    return word
