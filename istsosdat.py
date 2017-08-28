@@ -64,6 +64,8 @@ def get_dat_filepath(originalPath, procedure=None):
         import time
         timestampSuffix = time.strftime('%Y%m%d%H%M%S')
 
+        print('*'*20)
+        print(procedure)
         if procedure:
             prefix = '{}{}{}'.format(originalPath.rsplit(sep, 1)[0],
                                      sep,

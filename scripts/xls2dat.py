@@ -88,7 +88,7 @@ def xls2dat(path, dateColumn, timestampFormat, offset, procedure, d):
                 if column.ctype:
                     firstRow.append(column.value)
 
-            datPath = get_dat_filepath(file[:-4], procedure)
+            datPath = get_dat_filepath(file[:-4], file[:-4].split(sep)[-1])
             o = open(datPath, 'w')
 
             if timestampFormat == 'DATE+TIME':

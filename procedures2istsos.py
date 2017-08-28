@@ -71,28 +71,21 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
         if subdirs == []:
             observedProperties = get_observed_properties(root, deviceType,
                                                          files)
-            if deviceType == 'templogger':
-                if 'templogstasjoner' in root or 'Templogstasjoner' in root:
-                    locationName = root.split(os.sep)[-2].split(' ')[-1]
-                else:
-                    locationName = root.split(os.sep)[-2].split(' ')[2:]
-                    locationName = '-'.join(locationName)
-                location = get_location(locationName,
-                                        root.split(os.sep)[-1],
-                                        geometryIndex)
-                requestsList.append(get_procedure_request(
-                    root.split(os.sep)[-1], deviceType, location,
-                    observedProperties))
-            elif deviceType == 'TOV':
+            if 'templogstasjoner' in root or 'Templogstasjoner' in root:
+                locationName = root.split(os.sep)[-2].split(' ')[-1]
+            else:
                 locationName = root.split(os.sep)[-2].split(' ')[2:]
                 locationName = '-'.join(locationName)
+
+            if deviceType == 'templogger':
+                requestsList.append(get_procedure_request(
+                    root.split(os.sep)[-1],
+                    observedProperties, locationName, geometryIndex))
+            elif deviceType == 'TOV':
                 for file in files:
-                    location = get_location('{}-{}'.format(locationName,
-                                                           file[:-4]),
-                                            root.split(os.sep)[-1],
-                                            geometryIndex)
                     requestsList.append(get_procedure_request(
-                        file[:-4], deviceType, location, observedProperties))
+                        file[:-4], observedProperties,
+                        locationName, geometryIndex))
 
     for request in requestsList:
         r = requests.post(proceduresURL, data=json.dumps(request), auth=auth)
@@ -102,14 +95,18 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
             print(r.json())
 
 
-def get_procedure_request(procedureName, location, observedProperties):
+def get_procedure_request(procedureName, observedProperties, locationName,
+                          geometryIndex):
     """
     Get dictionary for procedure import
     :param procedureName: Name of your sensor
-    :param location: json dictionary containing location name, crs and coords
     :param observedProperties: List of observed properties
+    :param locationName: Geographical name of procedure location
+    :param geometryIndex: Path to the CSV file with procedures coords metadata
     :return procedure: dictionary containing all necessary aspects to import
     """
+
+    location = get_location(locationName, procedureName, geometryIndex)
 
     procedureName = istsosdat.standardize_norwegian(procedureName)
     procedure = {
@@ -139,6 +136,7 @@ def get_observed_properties(directory, deviceType, files):
     """
     Get observed properties of procedures in given directory
     :param directory: Directory containing procedures and index file
+    :param deviceType: Type of your device (mostly sensor)
     :param files: List of files in the directory
     :return outputs: List of observed properties based on an index file
     """
@@ -177,6 +175,7 @@ def get_location(locationName, procedure, geometryIndex):
     :param geometryIndex: Path to the CSV file with procedures coords metadata
     :return location: json dictionary containing location name, crs and coords
     """
+
     with open(geometryIndex, 'r') as geometry:
         z = 0
         for line in geometry.readlines():
@@ -201,31 +200,31 @@ def get_location(locationName, procedure, geometryIndex):
 
             if procedure in lineFeatures or \
                             '{}-temp'.format(procedure) in lineFeatures:
-                coordinates = [lineFeatures[3], lineFeatures[4], z]
+                coordinates = [lineFeatures[-3], lineFeatures[-2], z]
                 # TODO: Make crs more general
-                if lineFeatures[2] == '32V':
+                if lineFeatures[-4] == '32V':
                     crs = '32632'
-                elif lineFeatures[2] == '33W' or lineFeatures[2] == '33N':
+                elif lineFeatures[-4] == '33W' or lineFeatures[-4] == '33N':
                     crs = '32633'
-                elif lineFeatures[2] == '34W':
+                elif lineFeatures[-4] == '34W':
                     crs = '32634'
                 else:
                     raise ValueError('Unexpected coordinate system')
                 break
 
+    locationName = '{}-{}'.format(locationName, procedure)
     locationName = istsosdat.standardize_norwegian(locationName)
 
     if 'templogger' in geometryIndex:
         if procedure[0] in ['B', 'b']:
-            procedure = '{}-{}'.format(procedure.split(' ')[0], z)
+            locationName = '{}-{}'.format(locationName.split(' ')[0], z)
 
         location = {'type': 'Feature',
                     'geometry': {'type': 'Point',
                                  'coordinates': coordinates},
                     'crs': {'type': 'name',
                             'properties': {'name': crs}},
-                    'properties': {'name': '{}-{}'.format(locationName,
-                                                          procedure)}}
+                    'properties': {'name': locationName}}
     else:
         location = {'type': 'Feature',
                     'geometry': {'type': 'Point',
