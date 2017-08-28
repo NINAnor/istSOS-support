@@ -48,12 +48,13 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
     :param service: The name of the service instance
     :param procedurePath: Path to the directory containing location folders
                           with procedures
-    :param geometryIndex: Path to the CSV file with procedures coords metadata
     :param deviceType: Type of your device (mostly sensor)
+    :param geometryIndex: Path to the CSV file with procedures coords metadata
     :param istsosPath: Path to a directory where is istsos installed
     :param username: Username used to access istSOS server
     :param password: Password used to access istSOS server
     """
+
     walk_dir = procedurePath
     proceduresURL = '{}wa/istsos/services/{}/procedures'.format(url,
                                                                 service)
@@ -101,8 +102,14 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
             print(r.json())
 
 
-def get_procedure_request(procedureName, deviceType, location,
-                          observedProperties):
+def get_procedure_request(procedureName, location, observedProperties):
+    """
+    Get dictionary for procedure import
+    :param procedureName: Name of your sensor
+    :param location: json dictionary containing location name, crs and coords
+    :param observedProperties: List of observed properties
+    :return procedure: dictionary containing all necessary aspects to import
+    """
 
     procedureName = istsosdat.standardize_norwegian(procedureName)
     procedure = {
@@ -132,8 +139,10 @@ def get_observed_properties(directory, deviceType, files):
     """
     Get observed properties of procedures in given directory
     :param directory: Directory containing procedures and index file
+    :param files: List of files in the directory
     :return outputs: List of observed properties based on an index file
     """
+
     outputs = [{'name': 'Time',
                 'definition':
                     'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601',

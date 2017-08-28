@@ -51,8 +51,8 @@ def xls2dat(path, dateColumn, timestampFormat, offset, procedure, d):
         o = open(datPath, 'w')
 
         if timestampFormat == 'DATE+TIME':
-            header, columnsIndexes, timeColumnIndex = get_header(','.join(firstRow), dateColumn,
-                                                ','.join(firstRow[2:]), 'Time')
+            header, columnsIndexes, timeColumnIndex = get_header(
+                ','.join(firstRow), dateColumn, ','.join(firstRow[2:]), 'Time')
         else:
             header, columnsIndexes = get_header(','.join(firstRow), dateColumn,
                                                 ','.join(firstRow[2:]))

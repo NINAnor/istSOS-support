@@ -29,7 +29,7 @@ def get_dat_filepath(originalPath, procedure=None):
     get the path to .dat file and give it today's timestamp suffix if not given
     :param originalPath: path to the original file
     :param procedure: who provides the observations
-    :return: path to .dat file with timestamp as suffix
+    :return datPath: path to .dat file with timestamp as suffix
     """
 
     try:
@@ -261,6 +261,7 @@ def get_metadata(indexFile, returnUnits=False):
     """
     Load observation columns names from template file in param format
     :param indexFile: Path to file with template of observation columns names
+    :param returnUnits: boolean to decide whether return also units
     :return observationColumns: Observation columns names from template file
     """
 
@@ -300,6 +301,9 @@ def get_metadata(indexFile, returnUnits=False):
     return observationColumns
 
 def standardize_norwegian(word):
+    """
+    Convert word containing norwegian characters to istSOS acceptable standard
+    """
 
     if 'ø' in word:
         word = 'o'.join(word.split('ø'))
