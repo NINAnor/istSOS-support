@@ -90,8 +90,7 @@ if __name__ == '__main__':
         '-file_extension',
         dest='file_extension',
         default='.SWD',
-        help='Extension of files with observations '
-             '(not necessary when not using -d flag)')
+        help='Extension of files with observations')
 
     parser.add_argument(
         '-observation_columns',
