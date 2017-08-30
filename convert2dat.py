@@ -126,7 +126,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-d',
         action='store_true',
-        help='Use if you would like to convert all files with defined'
+        help='Use if you would like to convert all files with defined '
              'extension in the directory')
 
     parser.add_argument(

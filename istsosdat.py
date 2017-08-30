@@ -302,6 +302,21 @@ def get_metadata(indexFile, returnUnits=False):
 
     return observationColumns
 
+def get_procedure_id(procedureName, geometryIndex):
+    """
+    Find name of sensor used on the server for given name used in archive
+    :param procedureName: Name of the procedure used in archive
+    :param geometryIndex: Path to the CSV file with procedures coords metadata
+    :return: Name of procedure for server usage
+    """
+
+    with open(geometryIndex, 'r') as geometry:
+        for line in geometry.readlines():
+            lineFeatures = line.split(',')
+            if procedureName in lineFeatures or \
+                            '{}-temp'.format(procedureName) in lineFeatures:
+                return lineFeatures[0]
+
 def standardize_norwegian(word):
     """
     Convert word containing norwegian characters to istSOS acceptable standard

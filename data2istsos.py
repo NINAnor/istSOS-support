@@ -27,11 +27,17 @@ import os
 import subprocess
 import glob
 from sys import exit
-from istsosdat import standardize_norwegian
+from istsosdat import standardize_norwegian, get_procedure_id
 
 
 def main():
     walk_dir = args.__dict__['path']
+
+    # TODO: See issue about changing csv to something better
+    geometryIndex = args.__dict__['geometry_index']
+    if geometryIndex[-4:] != '.csv':
+        geometryIndex = '{}_{}.csv'.format(args.__dict__['geometry_index'],
+                                           args.__dict__['device_type'])
 
     if args.__dict__['device_type'] == 'templogger':
         procedureDirectories = {'hoydegradient': list(), 'lemenplott': list(),
@@ -62,19 +68,20 @@ def main():
                 procedureDirectories.update({root.split(os.sep)[-1]: [root,
                                                                       files]})
 
-    create_dats(procedureDirectories)
+    create_dats(procedureDirectories, geometryIndex)
 
     if args.__dict__['u'] is True:
-        upload_data(procedureDirectories)
+        upload_data(procedureDirectories, geometryIndex)
 
     if args.__dict__['f'] is True:
-        delete_dat_files(procedureDirectories)
+        delete_dat_files(procedureDirectories, geometryIndex)
 
 
-def create_dats(procedureDirectories):
+def create_dats(procedureDirectories, geometryIndex):
     """
     create .dat files from all output files from your device
     :param procedureDirectories: Dictionary of directories containing data
+    :param geometryIndex: Path to the CSV file with procedures coords metadata
     """
 
     if args.__dict__['device_type'] == 'templogger':
@@ -85,13 +92,14 @@ def create_dats(procedureDirectories):
     for off in procedureDirectories.keys():
         if fileExtension == 'swd':
             for observationsPath in procedureDirectories[off]:
-                procedure = observationsPath.split(os.sep)[-2]
+                procedureNick = observationsPath.split(os.sep)[-2]
+                procedure = get_procedure_id(procedureNick, geometryIndex)
 
                 p = subprocess.call(
                     ['python',
                      'convert2dat.py',
                      '-path={}'.format(observationsPath),
-                     '-timestamp_column={}'.format(procedure),
+                     '-timestamp_column={}'.format(procedureNick),
                      '-timestamp_format=YYYY-MM-DD HH:MM',
                      '-procedure={}'.format(procedure),
                      '-file_extension={}'.format(fileExtension),
@@ -118,16 +126,19 @@ def create_dats(procedureDirectories):
                 exit(1)
 
 
-def upload_data(procedureDirectories):
+def upload_data(procedureDirectories, geometryIndex):
     """
     Upload data from .dat files to your istSOS server
     :param procedureDirectories: Dictionary of directories containing data
+    :param geometryIndex: Path to the CSV file with procedures coords metadata
     """
 
     for off in procedureDirectories.keys():
         if args.__dict__['device_type'] == 'templogger':
             for observationsPath in procedureDirectories[off]:
-                procedure = observationsPath.split(os.sep)[-2]
+                procedure = get_procedure_id(
+                    observationsPath.split(os.sep)[-2],
+                    geometryIndex)
 
                 subprocess.call(
                     ['python',
@@ -156,16 +167,19 @@ def upload_data(procedureDirectories):
                     cwd=args.__dict__['istsos_path'])
 
 
-def delete_dat_files(procedureDirectories):
+def delete_dat_files(procedureDirectories, geometryIndex):
     """
     Delete .dat files created as intermediates in data folders
     :param procedureDirectories: Dictionary of directories containing data
+    :param geometryIndex: Path to the CSV file with procedures coords metadata
     """
 
     for off in procedureDirectories.keys():
         if args.__dict__['device_type'] == 'templogger':
             for observationsPath in procedureDirectories[off]:
-                procedure = observationsPath.split(os.sep)[-2]
+                procedure = get_procedure_id(
+                    observationsPath.split(os.sep)[-2],
+                    geometryIndex)
                 files = glob.glob('{}{}*.dat'.format(observationsPath,
                                                      procedure))
                 for f in files:
@@ -198,6 +212,15 @@ if __name__ == '__main__':
         type=str,
         choices=supportedDevices,
         help='Type of your device (mostly sensor)')
+
+    parser.add_argument(
+        '-geometry_index',
+        type=str,
+        default=os.path.join(os.path.dirname(__file__),
+                             'metadata',
+                             'geometry_index'),
+        help='Path to the CSV file with sensors metadata '
+             '(names, crs, coordinates)')
 
     parser.add_argument(
         '-url',

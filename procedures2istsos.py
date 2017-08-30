@@ -106,6 +106,7 @@ def get_procedure_request(procedureName, observedProperties, locationName,
     :return procedure: dictionary containing all necessary aspects to import
     """
 
+    procedureName = istsosdat.get_procedure_id(procedureName, geometryIndex)
     location = get_location(locationName, procedureName, geometryIndex)
 
     procedureName = istsosdat.standardize_norwegian(procedureName)
@@ -183,20 +184,8 @@ def get_location(locationName, procedure, geometryIndex):
             lineFeatures.append('0')
 
             if procedure[0] in ['B', 'b'] and procedure[-2:] == 'cm':
-                if procedure[1] == '1':
-                    stationSuffix = 'Bat'
-                elif procedure[1] == '2':
-                    stationSuffix = 'Sims'
-                elif procedure[1] in ['3', '4']:
-                    stationSuffix = 'Ran'
-                elif procedure[1] == '5':
-                    stationSuffix = 'Tjo'
-                elif procedure[1] == '6':
-                    stationSuffix = 'Bis'
-
                 z = procedure.split(
                     'cm')[0].strip().split('-')[-1].split(' ')[-1]
-                procedure = '{} - {}'.format(procedure[0:2], stationSuffix)
 
             if procedure in lineFeatures or \
                             '{}-temp'.format(procedure) in lineFeatures:
@@ -212,7 +201,7 @@ def get_location(locationName, procedure, geometryIndex):
                     raise ValueError('Unexpected coordinate system')
                 break
 
-    locationName = '{}-{}'.format(locationName, procedure)
+    locationName = '{}-{}'.format(locationName, lineFeatures[0])
     locationName = istsosdat.standardize_norwegian(locationName)
 
     if 'templogger' in geometryIndex:
