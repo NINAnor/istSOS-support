@@ -64,8 +64,6 @@ def get_dat_filepath(originalPath, procedure=None):
         import time
         timestampSuffix = time.strftime('%Y%m%d%H%M%S')
 
-        print('*'*20)
-        print(procedure)
         if procedure:
             prefix = '{}{}{}'.format(originalPath.rsplit(sep, 1)[0],
                                      sep,
@@ -106,7 +104,7 @@ def get_header(headerLine, timestampColumn, observationColumns,
         headerLine = headerLine.split(',')
 
     for column in headerLine:
-        if column.split('(')[0].strip() == timestampColumn:
+        if column == standardize_norwegian(timestampColumn, shorten=True):
             indexes.update(
                 {'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601': index})
             header += 'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601,'
@@ -310,6 +308,8 @@ def get_procedure_id(procedureName, geometryIndex):
     :return: Name of procedure for server usage
     """
 
+    procedureName = standardize_norwegian(procedureName)
+
     with open(geometryIndex, 'r') as geometry:
         for line in geometry.readlines():
             lineFeatures = line.split(',')
@@ -317,26 +317,45 @@ def get_procedure_id(procedureName, geometryIndex):
                             '{}-temp'.format(procedureName) in lineFeatures:
                 return lineFeatures[0]
 
-def standardize_norwegian(word):
+def standardize_norwegian(word, shorten=False):
     """
     Convert word containing norwegian characters to istSOS acceptable standard
+    :param shorten: return input string with missing norwegian characters
     """
 
-    if 'ø' in word:
-        word = 'o'.join(word.split('ø'))
-    if 'Ø' in word:
-        word = 'o'.join(word.split('Ø'))
-    if 'æ' in word:
-        word = 'ae'.join(word.split('æ'))
-    if 'å' in word:
-        word = 'a'.join(word.split('å'))
-    if 'Ы' in word:
-        word = 'o'.join(word.split('Ы'))
-    if 'Э' in word:
-        word = 'O'.join(word.split('Э'))
-    if 'Ж' in word:
-        word = 'a'.join(word.split('Ж'))
-    if 'П' in word:
-        word = 'A'.join(word.split('П'))
+    if shorten is False:
+        if 'ø' in word:
+            word = 'o'.join(word.split('ø'))
+        if 'Ø' in word:
+            word = 'o'.join(word.split('Ø'))
+        if 'æ' in word:
+            word = 'ae'.join(word.split('æ'))
+        if 'å' in word:
+            word = 'a'.join(word.split('å'))
+        if 'Ы' in word:
+            word = 'o'.join(word.split('Ы'))
+        if 'Э' in word:
+            word = 'O'.join(word.split('Э'))
+        if 'Ж' in word:
+            word = 'a'.join(word.split('Ж'))
+        if 'П' in word:
+            word = 'A'.join(word.split('П'))
+    else:
+        if 'ø' in word:
+            word = ''.join(word.split('ø'))
+        if 'Ø' in word:
+            word = ''.join(word.split('Ø'))
+        if 'æ' in word:
+            word = ''.join(word.split('æ'))
+        if 'å' in word:
+            word = ''.join(word.split('å'))
+        if 'Ы' in word:
+            word = ''.join(word.split('Ы'))
+        if 'Э' in word:
+            word = ''.join(word.split('Э'))
+        if 'Ж' in word:
+            word = ''.join(word.split('Ж'))
+        if 'П' in word:
+            word = ''.join(word.split('П'))
 
     return word

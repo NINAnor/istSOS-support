@@ -68,7 +68,7 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
     requestsList = list()
 
     for root, subdirs, files in os.walk(walk_dir):
-        if subdirs == []:
+        if subdirs == [] and files != []:
             observedProperties = get_observed_properties(root, deviceType,
                                                          files)
             if 'templogstasjoner' in root or 'Templogstasjoner' in root:
@@ -176,6 +176,8 @@ def get_location(locationName, procedure, geometryIndex):
     :param geometryIndex: Path to the CSV file with procedures coords metadata
     :return location: json dictionary containing location name, crs and coords
     """
+
+    procedure = istsosdat.standardize_norwegian(procedure)
 
     with open(geometryIndex, 'r') as geometry:
         z = 0
