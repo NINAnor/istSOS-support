@@ -73,9 +73,9 @@ def main():
 
                 if not any(i in yetImported for i in waypointNames):
                     names = ','.join(waypointNames)
-                    f.write('{},33W,{},{}\n'.format(names,
-                                                    waypoint.latitude,
-                                                    waypoint.longitude))
+                    f.write('{},WGS84,{},{}\n'.format(names,
+                                                      waypoint.longitude,
+                                                      waypoint.latitude))
 
 
 def get_imported_procedures(csvFile):
