@@ -25,47 +25,86 @@ import gpxpy
 import gpxpy.gpx
 import argparse
 from pathlib import Path
+from os import sep
 from istsosdat import standardize_norwegian
 
 
 def main():
-    gpx_file = open(args.__dict__['gpx_file'], 'r')
+    if args.__dict__['d'] is True and args.__dict__['gpx_path'][-1] != sep:
+        print("WARNING: Your path doesn't end with '{}'. It will parse all "
+              "files beginning with '{}' and ending with 'GPX' in the path"
+              "'{}{}'".format(sep,
+                              args.__dict__['gpx_path'].split(sep)[-1],
+                              args.__dict__['gpx_path'].rsplit(sep, 1)[0],
+                              sep))
 
     yetImported = list()
     if Path(args.__dict__['index_file']).is_file():
         yetImported = get_imported_procedures(args.__dict__['index_file'])
         f = open(args.__dict__['index_file'], 'a')
-        print('*'*20)
     else:
         f = open(args.__dict__['index_file'], 'w')
         f.write('procid,[multiple_procnames],crs,x,y\n')
 
-    gpx = gpxpy.parse(gpx_file)
+    if args.__dict__['d'] is False:
+        gpx_file = open(args.__dict__['gpx_path'], 'r')
+        gpx = gpxpy.parse(gpx_file)
 
-    for waypoint in gpx.waypoints:
-        waypointNames = get_possible_procedure_names(waypoint)
+        for waypoint in gpx.waypoints:
+            waypointNames = get_possible_procedure_names(waypoint)
 
-        if not any(i in yetImported for i in waypointNames):
-            names = ','.join(waypointNames)
-            f.write('{},{},{}\n'.format(names,
-                                        waypoint.latitude,
-                                        waypoint.longitude))
+            if not any(i in yetImported for i in waypointNames):
+                names = ','.join(waypointNames)
+                f.write('{},33W,{},{}\n'.format(names,
+                                                waypoint.latitude,
+                                                waypoint.longitude))
+    else:
+        import glob
+        files = glob.glob("{}*.gpx".format(args.__dict__['gpx_path']))
+        for f in glob.glob("{}*.GPX".format(args.__dict__['gpx_path'])):
+            files.append(f)
+
+        for file in files:
+            gpx_file = open(file, 'r')
+            gpx = gpxpy.parse(gpx_file)
+
+            for waypoint in gpx.waypoints:
+                waypointNames = get_possible_procedure_names(waypoint)
+
+                if not any(i in yetImported for i in waypointNames):
+                    names = ','.join(waypointNames)
+                    f.write('{},33W,{},{}\n'.format(names,
+                                                    waypoint.latitude,
+                                                    waypoint.longitude))
 
 
 def get_imported_procedures(csvFile):
+    """
+    Get names of procedures that were imported anytime before
+    :param csvFile: csvFile containing procedures geometry
+    :return namesList: List of names of imported procedures
+    """
 
     namesList = list()
+
     with open(csvFile, 'r') as openedCsv:
         openedCsv.readline()
         for line in openedCsv.readlines():
-            for i in line.split(',')[:-2]:
+            for i in line.split(',')[:-3]:
                 namesList.append(i)
 
     return namesList
 
 
 def get_possible_procedure_names(procedure):
+    """
+    Get all often used variants of procedure name
+    :param procedure: Name of procedure
+    :return names: List containing mostly used variations of procedure name
+    """
+
     name = standardize_norwegian(procedure.name)
+
     if 'TOV' in name:
         name = ''.join(name.split('TOV'))
     if 'Nyveg' in name:
@@ -78,7 +117,9 @@ def get_possible_procedure_names(procedure):
         name = name[1:]
     if '--' in name:
         name = '-'.join(name.split('--'))
+
     names = [name]
+
     if '-' in name:
         names.append(''.join(name.split('-')))
         names.append('_'.join(name.split('-')))
@@ -106,31 +147,17 @@ if __name__ == '__main__':
         help='Path to the index file')
 
     parser.add_argument(
-        '-gpx_file',
+        '-gpx_path',
         type=str,
-        dest='gpx_file',
+        dest='gpx_path',
         required=True,
-        help='Path to the GPX file containing measured geometry of procedures')
+        help='Path to the GPX file containing geometry of procedures')
+
+    parser.add_argument(
+        '-d',
+        action='store_true',
+        help='Use if you would like to parse all GPX files in the directory')
 
     args = parser.parse_args()
 
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
