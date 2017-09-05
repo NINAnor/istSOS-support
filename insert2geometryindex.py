@@ -43,6 +43,8 @@ def main():
         yetImported = get_imported_procedures(args.__dict__['index_file'])
         f = open(args.__dict__['index_file'], 'a')
     else:
+        print('New geometry index file named {} will be created.'.format(
+            args.__dict__['index_file']))
         f = open(args.__dict__['index_file'], 'w')
         f.write('procid,[multiple_procnames],crs,x,y\n')
 
