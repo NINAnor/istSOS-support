@@ -340,6 +340,8 @@ def standardize_norwegian(word, shorten=False):
             word = 'a'.join(word.split('Ж'))
         if 'П' in word:
             word = 'A'.join(word.split('П'))
+        if 'Å' in word:
+            word = 'A'.join(word.split('Å'))
     else:
         if 'ø' in word:
             word = ''.join(word.split('ø'))
@@ -357,5 +359,7 @@ def standardize_norwegian(word, shorten=False):
             word = ''.join(word.split('Ж'))
         if 'П' in word:
             word = ''.join(word.split('П'))
+        if 'Å' in word:
+            word = ''.join(word.split('Å'))
 
     return word
