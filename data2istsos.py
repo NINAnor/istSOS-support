@@ -37,7 +37,7 @@ def main():
     geometryIndex = args.__dict__['geometry_index']
     if geometryIndex[-4:] != '.csv':
         geometryIndex = '{}_{}.csv'.format(args.__dict__['geometry_index'],
-                                           args.__dict__['device_type'])
+                                           args.__dict__['service'])
 
     if args.__dict__['device_type'] == 'templogger':
         procedureDirectories = {'hoydegradient': list(), 'lemenplott': list(),
@@ -65,8 +65,12 @@ def main():
         procedureDirectories = dict()
         for root, subdirs, files in os.walk(walk_dir):
             if subdirs == []:
-                procedureDirectories.update({root.split(os.sep)[-1]: [root,
-                                                                      files]})
+                obsFiles = [f for f in files if f[-4:] == '.xls']
+                offering = standardize_norwegian(root.split(os.sep)[-2])
+                if offering not in procedureDirectories.keys():
+                    procedureDirectories.update({offering: {root: obsFiles}})
+                else:
+                    procedureDirectories[offering].update({root: obsFiles})
 
     create_dats(procedureDirectories, geometryIndex)
 
@@ -111,19 +115,24 @@ def create_dats(procedureDirectories, geometryIndex):
                     delete_dat_files(procedureDirectories)
                     exit(1)
         elif fileExtension == 'xls':
-            p = subprocess.call([
-                'python',
-                'convert2dat.py',
-                '-path={}/'.format(procedureDirectories[off][0]),
-                '-timestamp_column=Date',
-                '-timestamp_format=DATE+TIME',
-                '-file_extension={}'.format(fileExtension),
-                '-d'])
+            for year in procedureDirectories[off].keys():
+                for procedureNick in procedureDirectories[off][year]:
+                    procedure = get_procedure_id(procedureNick[:-4],
+                                                 geometryIndex)
+                    p = subprocess.call([
+                        'python',
+                        'convert2dat.py',
+                        '-path={}{}{}'.format(year, os.sep, procedureNick),
+                        '-timestamp_column=Date',
+                        '-timestamp_format=DATE+TIME',
+                        '-procedure={}'.format(procedure),
+                        '-file_extension={}'.format(fileExtension)
+                        ])
 
-            if p != 0:
-                print('Unexpected error. Execution stopped')
-                delete_dat_files(procedureDirectories)
-                exit(1)
+                    if p != 0:
+                        print('Unexpected error. Execution stopped')
+                        delete_dat_files(procedureDirectories)
+                        exit(1)
 
 
 def upload_data(procedureDirectories, geometryIndex):
@@ -152,19 +161,22 @@ def upload_data(procedureDirectories, geometryIndex):
                      '-password={}'.format(args.__dict__['password'])],
                     cwd=args.__dict__['istsos_path'])
         elif args.__dict__['device_type'] == 'TOV':
-            for procedure in procedureDirectories[off][1]:
-                subprocess.call(
-                    ['python',
-                     'scripts/csv2istsos.py',
-                     '-w={}'.format(os.path.abspath(
-                         procedureDirectories[off][0])),
-                     '-s={}'.format(args.__dict__['service']),
-                     '-u={}'.format(args.__dict__['url']),
-                     '-o={}'.format(off),
-                     '-p={}'.format(standardize_norwegian(procedure[:-4])),
-                     '-user={}'.format(args.__dict__['username']),
-                     '-password={}'.format(args.__dict__['password'])],
-                    cwd=args.__dict__['istsos_path'])
+            for year in procedureDirectories[off].keys():
+                for procedureNick in procedureDirectories[off][year]:
+                    procedure = get_procedure_id(procedureNick[:-4],
+                                                 geometryIndex)
+                    subprocess.call(
+                        ['python',
+                         'scripts/csv2istsos.py',
+                         '-w={}'.format(os.path.abspath(
+                             '{}{}'.format(year, os.sep))),
+                         '-s={}'.format(args.__dict__['service']),
+                         '-u={}'.format(args.__dict__['url']),
+                         '-o={}'.format(off),
+                         '-p={}'.format(procedure),
+                         '-user={}'.format(args.__dict__['username']),
+                         '-password={}'.format(args.__dict__['password'])],
+                        cwd=args.__dict__['istsos_path'])
 
 
 def delete_dat_files(procedureDirectories, geometryIndex):
@@ -185,11 +197,8 @@ def delete_dat_files(procedureDirectories, geometryIndex):
                 for f in files:
                     os.remove(f)
         elif args.__dict__['device_type'] == 'TOV':
-            for procedure in procedureDirectories[off][1]:
-                observationsPath = procedureDirectories[off][0]
-                files = glob.glob(
-                    '{}/{}*.dat'.format(observationsPath,
-                                        standardize_norwegian(procedure[:-4])))
+            for year in procedureDirectories[off].keys():
+                files = glob.glob('{}{}*.dat'.format(year, os.sep))
                 for f in files:
                     os.remove(f)
 
