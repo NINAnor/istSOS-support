@@ -285,7 +285,13 @@ def get_metadata(indexFile, returnUnits=False):
     elif indexFile[-3:] == 'xls':
         import xlrd
 
-        xlWorkbook = xlrd.open_workbook(indexFile)
+        try:
+            xlWorkbook = xlrd.open_workbook(indexFile)
+        except:
+            import sys
+            sys.exit('ERROR: Your process was interrupted. Try to check if '
+                     'your .xls file is not corrupted\n(Try to open it and '
+                     'save as .xls. )')
         xlSheet = xlWorkbook.sheet_by_index(0)
 
         for column in xlSheet.row(3):
