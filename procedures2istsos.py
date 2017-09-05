@@ -60,7 +60,7 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
                                                                 service)
     # TODO: See issue about changing csv to something better
     if geometryIndex[-4:] != '.csv':
-        geometryIndex = '{}_{}.csv'.format(geometryIndex, deviceType)
+        geometryIndex = '{}_{}.csv'.format(geometryIndex, service)
 
     sys.path.append(istsosPath)
     from lib.requests.auth import HTTPBasicAuth
@@ -74,7 +74,7 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
             if 'templogstasjoner' in root or 'Templogstasjoner' in root:
                 locationName = root.split(os.sep)[-2].split(' ')[-1]
             else:
-                locationName = root.split(os.sep)[-2].split(' ')[2:]
+                locationName = root.split(os.sep)[-2].split(' ')
                 locationName = '-'.join(locationName)
 
             if deviceType == 'templogger':
@@ -83,9 +83,10 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
                     observedProperties, locationName, geometryIndex))
             elif deviceType == 'TOV':
                 for file in files:
-                    requestsList.append(get_procedure_request(
-                        file[:-4], observedProperties,
-                        locationName, geometryIndex))
+                    if file[-4:] == '.xls':
+                        requestsList.append(get_procedure_request(
+                            file[:-4], observedProperties,
+                            locationName, geometryIndex))
 
     for request in requestsList:
         r = requests.post(proceduresURL, data=json.dumps(request), auth=auth)
@@ -153,8 +154,11 @@ def get_observed_properties(directory, deviceType, files):
         observedProperties = istsosdat.get_metadata(
             '{}{}INDEX.SWD'.format(directory, os.sep), returnUnits=True)
     elif deviceType == 'TOV':
-        observedProperties = istsosdat.get_metadata(
-            '{}{}{}'.format(directory, os.sep, files[0]), returnUnits=True)
+        for file in files:
+            if 'alle' not in file:
+                observedProperties = istsosdat.get_metadata(
+                    '{}{}{}'.format(directory, os.sep, file), returnUnits=True)
+                break
 
     for observedProperty in observedProperties.split(','):
         outputs.append({
@@ -199,6 +203,8 @@ def get_location(locationName, procedure, geometryIndex):
                     crs = '32633'
                 elif lineFeatures[-4] == '34W':
                     crs = '32634'
+                elif lineFeatures[-4] == 'WGS84':
+                    crs = '4326'
                 else:
                     raise ValueError('Unexpected coordinate system')
                 break
