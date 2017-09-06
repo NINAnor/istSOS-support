@@ -199,7 +199,7 @@ def get_location(locationName, procedure, geometryIndex):
                 # TODO: Make crs more general
                 if lineFeatures[-4] == '32V':
                     crs = '32632'
-                elif lineFeatures[-4] == '33W' or lineFeatures[-4] == '33N':
+                elif lineFeatures[-4] in ['33W', '33N', '33V']:
                     crs = '32633'
                 elif lineFeatures[-4] == '34W':
                     crs = '32634'
