@@ -107,10 +107,10 @@ def get_procedure_request(procedureName, observedProperties, locationName,
     :return procedure: dictionary containing all necessary aspects to import
     """
 
+    procedureName = istsosdat.standardize_norwegian(procedureName)
     procedureName = istsosdat.get_procedure_id(procedureName, geometryIndex)
     location = get_location(locationName, procedureName, geometryIndex)
 
-    procedureName = istsosdat.standardize_norwegian(procedureName)
     procedure = {
         'system_id': procedureName,
         'system': procedureName,
