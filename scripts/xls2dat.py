@@ -51,11 +51,19 @@ def xls2dat(path, dateColumn, timestampFormat, offset, procedure, d):
         o = open(datPath, 'w')
 
         if timestampFormat == 'DATE+TIME':
+            observationColumns = list(firstRow)
+            observationColumns.remove('Date')
+            observationColumns.remove('Time')
+            for i in ['Month', 'Year', 'Tre-id']:
+                if i in observationColumns:
+                    observationColumns.remove(i)
+
             header, columnsIndexes, timeColumnIndex = get_header(
-                ','.join(firstRow), dateColumn, ','.join(firstRow[2:]), 'Time')
+                ','.join(firstRow), dateColumn, ','.join(observationColumns),
+                'Time')
         else:
             header, columnsIndexes = get_header(','.join(firstRow), dateColumn,
-                                                ','.join(firstRow[2:]))
+                                                ','.join(firstRow))
         o.write(header)
 
         columnsMax = max(columnsIndexes.values()) + 1
@@ -63,11 +71,15 @@ def xls2dat(path, dateColumn, timestampFormat, offset, procedure, d):
         for rowIndex in range(4, fileLength):
             cells = list()
             for colIndex in range(columnsMax):
-                cells.append(str(xlSheet.cell(rowIndex, colIndex).value))
+                cell = xlSheet.cell(rowIndex, colIndex).value
+                if not isinstance(cell, unicode):
+                    cell = str(cell)
+                cells.append(cell)
 
-            cells[0] = 'DATE{}TIME{}'.format(cells[columnsIndexes[
-                'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']],
-                                             cells[timeColumnIndex])
+            dateIndex = columnsIndexes[
+                'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']
+            cells[dateIndex] = 'DATE{}TIME{}'.format(cells[dateIndex],
+                                                     cells[timeColumnIndex])
             o.write(get_observations('\t'.join(cells), timestampFormat, offset,
                                      columnsIndexes))
 
@@ -92,9 +104,17 @@ def xls2dat(path, dateColumn, timestampFormat, offset, procedure, d):
             o = open(datPath, 'w')
 
             if timestampFormat == 'DATE+TIME':
+                observationColumns = list(firstRow)
+                observationColumns.remove('Date')
+                observationColumns.remove('Time')
+                for i in ['Month', 'Year', 'Tre-id']:
+                    if i in observationColumns:
+                        observationColumns.remove(i)
+
                 header, columnsIndexes, timeColumnIndex = get_header(
                     ','.join(firstRow), dateColumn,
-                    ','.join(firstRow[2:]), 'Time')
+                    ','.join(observationColumns),
+                    'Time')
             else:
                 header, columnsIndexes = get_header(','.join(firstRow),
                                                     dateColumn,
@@ -106,13 +126,16 @@ def xls2dat(path, dateColumn, timestampFormat, offset, procedure, d):
             for rowIndex in range(4, fileLength):
                 cells = list()
                 for colIndex in range(columnsMax):
-                    cells.append(str(xlSheet.cell(rowIndex, colIndex).value))
+                    cell = xlSheet.cell(rowIndex, colIndex).value
+                    if not isinstance(cell, unicode):
+                        cell = str(cell)
+                    cells.append(cell)
 
-                cells[0] = 'DATE{}TIME{}'.format(cells[columnsIndexes[
-                    'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']],
-                                                 cells[timeColumnIndex])
-                o.write(
-                    get_observations('\t'.join(cells), timestampFormat, offset,
-                                     columnsIndexes))
+                    dateIndex = columnsIndexes[
+                        'urn:ogc:def:parameter:x-istsos:1.0:time:iso8601']
+                    cells[dateIndex] = 'DATE{}TIME{}'.format(
+                        cells[dateIndex], cells[timeColumnIndex])
+                o.write(get_observations('\t'.join(cells), timestampFormat,
+                                         offset, columnsIndexes))
 
             o.close()
