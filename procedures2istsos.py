@@ -74,7 +74,7 @@ def insert_procedures(url, service, procedurePath, deviceType, geometryIndex,
             if 'templogstasjoner' in root or 'Templogstasjoner' in root:
                 locationName = root.split(os.sep)[-2].split(' ')[-1]
             else:
-                locationName = root.split(os.sep)[-2].split(' ')
+                locationName = root.split(os.sep)[-2].split(' ')[2:]
                 locationName = '-'.join(locationName)
 
             if deviceType == 'templogger':
@@ -184,7 +184,7 @@ def get_location(locationName, procedure, geometryIndex):
     procedure = istsosdat.standardize_norwegian(procedure)
 
     with open(geometryIndex, 'r') as geometry:
-        z = 0
+        z = '0'
         for line in geometry.readlines():
             lineFeatures = line.split(',')
             lineFeatures.append('0')
