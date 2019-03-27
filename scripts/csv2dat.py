@@ -43,12 +43,23 @@ def csv2dat(path, observationColumns, timestampColumn, timestampFormat, offset,
         datPath = get_dat_filepath(path[:-4], procedure)
         o = open(datPath, 'w')
 
-        header, columnsIndexes = get_header(i.readline(),
+        for line in i:
+            if all(col in line for col in observationColumns.split(',') + [timestampColumn]):
+                headerLine = line
+                break
+            else:
+                headerLine = None
+
+        if not headerLine:
+            print('ERROR: Could not find header line in file {}'.format(i.name))
+            exit(0)
+
+        header, columnsIndexes = get_header(headerLine,
                                             timestampColumn,
                                             observationColumns)
         o.write(header)
 
-        for line in i.readlines():
+        for line in i:
             o.write(get_observations(line, timestampFormat, offset,
                                      columnsIndexes))
 
@@ -65,12 +76,23 @@ def csv2dat(path, observationColumns, timestampColumn, timestampFormat, offset,
             datPath = get_dat_filepath(file[:-4], procedure)
             o = open(datPath, 'w')
 
-            header, columnsIndexes = get_header(i.readline(),
+            for line in i:
+                if all(col in line for col in observationColumns.split(',') + [timestampColumn]):
+                    headerLine = line
+                    break
+                else:
+                    headerLine = None
+
+            if not headerLine:
+                print('ERROR: Could not find header line in file {}'.format(i.name))
+                exit(0)
+
+            header, columnsIndexes = get_header(headerLine,
                                                 timestampColumn,
                                                 observationColumns)
             o.write(header)
 
-            for line in i.readlines():
+            for line in i:
                 o.write(get_observations(line, timestampFormat, offset,
                                          columnsIndexes))
 
